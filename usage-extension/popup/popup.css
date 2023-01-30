@@ -1,0 +1,12 @@
+.root {
+  min-width: 300px;
+  min-height: 300px;
+}
+
+.top-buttons {
+  display: flex;
+}
+
+.display-results {
+  display: none;
+}
