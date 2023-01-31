@@ -1,64 +1,211 @@
-import { doUrl, getUsageInfo } from '../scripts/do.js';
-import { addCell, emptyTable } from '../scripts/table-helpers.js';
+import { clearCache, doUrl, getNeatUsageInfo } from '../scripts/do.js';
+import { tableAddCell, tableEmpty } from '../scripts/table-helpers.js';
+import { pureShowElement, pureEnableElement } from '../scripts/pure-helper.js';
+import { storageActivitiesName, storageDropletsName, storageGetActivities, storageGetDroplets, storageGetResult, storageResult } from '../scripts/store.js';
+import { copyTextToClipboard } from '../scripts/helpers.js';
 
-// Initialize button with users' preferred color
-let displayResults = document.getElementById("displayResults");
-let showCreator = document.getElementById("showCreator");
+const buttonDisplayResults = document.getElementById("displayResults");
+const buttonDownloadResults  = document.getElementById("downloadResults");
+const buttonShowCreator = document.getElementById("showCreator");
+const buttonClearCache = document.getElementById("clearCache");
 
-console.warn('popjs', 'loaded');
+const menuReport = document.getElementById("menuReport");
+const menusSupplementPage = document.getElementById("menusSupplementPage");
 
-displayResults.addEventListener("click", async () => {
-  console.warn('displayResults click', doUrl);
+const sectionReport = document.getElementById("sectionReport");
+const sectionSupplementPage = document.getElementById("sectionSupplementPage");
 
-  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab.url.startsWith(doUrl)) {
-    return;
-  }
+const buttonDisplayResultsIcon = document.getElementById("displayResultsIcon");
+const buttonDownloadResultsIcon = document.getElementById("downloadIcon");
+
+const resultsTable = document.getElementById('results-table');
+
+let storageHasDroplets, storageHasActivities, storageHasResult, generatingResults = null;
+
+/*****************************
+ * Functions
+ *****************************/ 
+async function displayResults() {
+  generatingResults = true;
 
   const resultsRoot = document.getElementById('results-root');
-  const resultsTable = document.getElementById('results-table');
-  const resultsBody = document.getElementById('results-body');
 
-  // TODO: RC add disabled to button
+  pureEnableElement(buttonDisplayResults, false);
+
+  buttonDisplayResultsIcon.classList.add('bi-arrow-clockwise')
+  buttonDisplayResultsIcon.classList.remove('bi-newspaper')
 
   try {
-    const droplets = await getUsageInfo();
+    const droplets = await getNeatUsageInfo();
 
-    emptyTable(resultsTable)
+    tableEmpty(resultsTable);
 
     droplets.forEach(d => {
       const row = resultsTable.getElementsByTagName('tbody')[0].insertRow(-1);
 
-      addCell(row, 0, d.name);
-      addCell(row, 1, d.supplemented.user);
-      addCell(row, 2, d.created_at);
-      addCell(row, 3, d.supplemented.hours_old);
+      if (d.isNaughty) {
+        row.classList.add("pure-table-naughty");
+      } else if (d.isNice) {
+        row.classList.add("pure-table-nice");
+      }
+
+      tableAddCell(row, 0, d.dropletName, `${doUrl}/droplets/${d.dropletId}`);
+      tableAddCell(row, 1, d.userName);
+      tableAddCell(row, 2, d.created);
+      tableAddCell(row, 3, d.age);
     })
 
   } catch (err) {
     console.error('Failed to get usage: ', err);
   }
 
-  resultsRoot.style.display = 'flex';
+  pureShowElement(resultsRoot, true);
 
-  // TODO: RC remove disabled to button
+  generatingResults = false;
 
-  // TODO: RC add export / download / copy
-
-
-  // chrome.scripting.executeScript({
-  //   target: { tabId: tab.id },
-  //   func: setPageBackgroundColor,
-  // });
-});
-
-showCreator.addEventListener("click", async () => {
-  console.warn('showCreator click');
-
-  // let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  buttonDisplayResultsIcon.classList.add('bi-newspaper')
+  buttonDisplayResultsIcon.classList.remove('bi-arrow-clockwise')
 
   // chrome.scripting.executeScript({
   //   target: { tabId: tab.id },
   //   func: setPageBackgroundColor,
   // });
+}
+
+function updateButtonState() {
+  pureEnableElement(buttonClearCache, storageHasDroplets || storageHasActivities)
+  pureEnableElement(buttonDownloadResults, storageHasResult);
+  if (!generatingResults) {
+    pureEnableElement(buttonDisplayResults, !storageHasResult);
+  }
+}
+
+async function initialise() {
+  storageHasDroplets = await storageGetDroplets();
+  storageHasActivities = await storageGetActivities();
+  storageHasResult = await storageGetResult();
+
+  updateButtonState();
+
+  console.info('Cache Info')
+  console.info('droplets', storageHasDroplets)
+  console.info('activities', storageHasActivities)
+  console.info('result', storageHasResult)
+
+  if (storageHasResult) {
+    await displayResults();
+  }
+}
+
+
+/*****************************
+ * Menu
+ *****************************/ 
+menuReport.addEventListener("click", async () => {
+  pureShowElement(sectionReport, true);
+  sectionReport.classList.add("pure-menu-selected");
+
+  pureShowElement(sectionSupplementPage, false);
+  sectionReport.classList.remove("pure-menu-selected");
+})
+
+menusSupplementPage.addEventListener("click", async () => {
+  pureShowElement(sectionSupplementPage, true);
+  sectionReport.classList.add("pure-menu-selected");
+
+  pureShowElement(sectionReport, false);
+  sectionReport.classList.remove("pure-menu-selected");
+})
+
+/*****************************
+ * Buttons
+ *****************************/ 
+buttonDisplayResults.addEventListener("click", async () => {
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab.url.startsWith(doUrl)) {
+    return;
+  }
+
+  await displayResults();
 });
+
+buttonDownloadResults.addEventListener("click", async () => {
+  const droplets = await getNeatUsageInfo();
+
+  const naughtyList = droplets.reduce((res, d) => {
+    if (!d.isNaughty) {
+      return res;
+    }
+
+    if (!res[d.userName]) {
+      res[d.userName] = 0;
+    }
+
+    res[d.userName]++
+
+    return res;
+  }, {})
+
+
+  const message = Object.keys(naughtyList) === 0 ? [
+    `NONE! A pint of the landlord's finest to you all\n`
+  ] : [
+    ...Object.entries(naughtyList).map(([userName, count]) => `${userName}: ${count}\n`)
+  ]
+
+  const blobArray = [
+    `\`\`\`\n`,
+    'This weeks DO droplet\'s naughty list...\n',
+    ...message,
+    `\`\`\`\n`,
+  ]
+
+  const blob = new Blob(blobArray, {type: "text/plain"});
+  // const url = URL.createObjectURL(blob);
+  // chrome.downloads.download({
+  //   url: url, // The object URL can be used as download URL
+  //   filename: 'rancher-do-usage',
+  //   saveAs: true,
+  // });
+
+  await blob.text().then(text => copyTextToClipboard(text))
+  
+  buttonDownloadResultsIcon.classList.add("bi-clipboard-check");
+  buttonDownloadResultsIcon.classList.remove("bi-clipboard");
+
+  setTimeout(() => {
+    buttonDownloadResultsIcon.classList.add("bi-clipboard");
+    buttonDownloadResultsIcon.classList.remove("bi-clipboard-check");
+  }, 3000)
+
+});
+
+buttonClearCache.addEventListener("click", async () => {
+  await clearCache();
+  tableEmpty(resultsTable);
+});
+
+buttonShowCreator.addEventListener("click", async () => {
+  // TODO: RC
+});
+
+/*****************************
+ * Storage
+ *****************************/ 
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (changes[storageDropletsName]) {
+    storageHasDroplets = !!changes[storageDropletsName].newValue
+  }
+  if (changes[storageActivitiesName]) {
+    storageHasActivities = !!changes[storageActivitiesName].newValue
+  }
+  if (changes[storageResult]) {
+    storageHasResult = !!changes[storageResult].newValue
+  }
+  updateButtonState();
+})
+
+/*****************************
+ * Init
+ *****************************/ 
+await initialise();

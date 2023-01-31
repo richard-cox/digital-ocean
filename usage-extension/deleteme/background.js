@@ -1,4 +1,4 @@
-import { doUrl, getUsageInfo } from './scripts/do.js';
+import { doUrl, getUsageInfo } from '../scripts/do.js';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.action.setBadgeText({
@@ -9,17 +9,12 @@ chrome.runtime.onInstalled.addListener(() => {
 let running = false // TODO: RC
 
 chrome.action.onClicked.addListener(async (tab) => {
-  console.log('onClicked'); // chrome://inspect/#service-workers
-  console.warn('onClicked');
-
   if (!tab.url.startsWith(doUrl)) {
     return;
   }
 
   // Retrieve the action badge to check if the extension is 'ON' or 'OFF'
   const prevState = await chrome.action.getBadgeText({ tabId: tab.id });
-
-  console.warn('state: ', prevState, running);
 
   if (prevState === 'RUNNING') {
     return;

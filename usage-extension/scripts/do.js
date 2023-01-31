@@ -1,24 +1,60 @@
+import { storageGetDroplets, storageGetResult, storageSetActivities, storageSetDroplets, storageSetResult } from './store.js';
+
+
 const containerEcosystemId = '7708d48d-9571-45a7-ab35-34da2d95fe99'; // This is gonna be static, no need to make a request to find
-export const  doUrl = 'https://cloud.digitalocean.com';
+export const doUrl = 'https://cloud.digitalocean.com';
+
+export const clearCache  = async() => {
+  await storageSetDroplets(null);
+  await storageSetActivities(null);
+  await storageSetResult(null);
+}
+
+function getDisplayName(name) {
+  // return obfuscateText(name);
+  return name;
+}
+
+export const getNeatUsageInfo = async() => {
+  const droplets = await getUsageInfo();
+  return droplets.map(d => {
+     const hoursOld = d.supplemented.hours_old;
+     const daysMinusHours = Math.floor(hoursOld / 24);
+     const hoursMinusDays = hoursOld % 24;
+
+     return {
+      dropletName: getDisplayName(d.name),
+      dropletId: d.id,
+      userName: getDisplayName(d.supplemented.user),
+      created: new Date(d.created_at).toLocaleString(),
+      age: `${daysMinusHours}:${hoursMinusDays}`,
+      isNaughty: d.supplemented.isNaughty,
+      isNice: !d.supplemented.isNaughty && d.supplemented.doNotDelete
+     }
+  })
+}
 
 export const getUsageInfo = async() => {
-  const droplets = mockDroplets(); // await getDroplets();
-  console.warn('getUsageInfo', 'droplets', droplets);
+  let droplets = await storageGetDroplets();
 
-  const supplementedDroplets = await supplementDroplets(droplets.droplets);
-  console.warn('getUsageInfo', 'supplementedDroplets', supplementedDroplets);
+  if (!droplets) {
+    droplets = await getDroplets(); //mockDroplets(); //
+    storageSetDroplets(droplets);
+  }
+  console.info('getUsageInfo', 'droplets', droplets);
+
+  let supplementedDroplets = await storageGetResult();
+  if (!supplementedDroplets) {
+    supplementedDroplets =  await supplementDroplets(droplets.droplets);
+    storageSetResult(supplementedDroplets);
+  }
+  console.info('getUsageInfo', 'supplementedDroplets', supplementedDroplets);
 
   return supplementedDroplets;
-
-  // return await getDo('https://cloud.digitalocean.com/api/v1/fleets/7708d48d-9571-45a7-ab35-34da2d95fe99/activity_history?preserveScrollPosition=true&sort=date&sort_direction=desc&page=1');
 }
 
 export const getDroplets = async(page = 1) => {
-  // return await getDo('https://api.digitalocean.com/v2/droplets?page=1&per_page=200');
-
   const resJson = await getDo(`${doUrl}/api/v1/droplets?page=${page}&sort=created_at&sort_direction=desc&include_failed=true`);
-  // const resJson = await res.json();
-  console.warn('getDroplets: ', 'req 1', resJson)
   if (resJson.meta.pagination.next_page) {
     const nextPageRes = await getDroplets(++page);
     resJson.droplets = [
@@ -31,55 +67,44 @@ export const getDroplets = async(page = 1) => {
 
 const supplementDroplets = async (droplets) => {
   const now = new Date();
-  // const activityPageNo = 1;
-  // const activityPageIndex = 0;
-  // let activityPage = await getActivity(activityPageNo);
   let activityRes;
 
-  for (const d of droplets ){
+  for (const d of droplets){
 
     const then = new Date(d.created_at);
 
-    const supplemented = {
-      
-    }
-    supplemented.hours_old = Math.floor((now - then) / 1000 / 3600);
-    supplemented.days_old = Math.floor(supplemented.hours_old / 24);
+    const hours_old = Math.floor((now - then) / 1000 / 3600);
+    const days_old = Math.floor(hours_old / 24);
 
+    d.supplemented = {
+      hours_old,
+      days_old,
+      too_old: hours_old >= 1 * 24 * 12,
+      doNotDelete: !!d.tags?.find(t => t.name === 'DO_NOT_DELETE'),
+      user: undefined,
+    }
+
+    d.supplemented.isNaughty = d.supplemented.too_old && !d.supplemented.doNotDelete;
 
     await findActivity(d, activityRes)
       .then(res => {
         activityRes = res.activityRes
-        supplemented.user = res.activity.user.name;
+        d.supplemented.user = res.activity.user.name;
       })
-      .catch(e => console.error('skipping'));
-    
-    // let activity = null;
-    // for (let pos = activityRes.currentPos; pos < activityPage.length; pos++) {
-    //   activityRes = await findActivity(d, activityRes);
-    //   supplemented.user = activityRes.user.name;
-    // }
-
-
-
-    d.supplemented = supplemented;
-
-    
-    
-    // TODO: RC there's no `size` obj, but there is a size_id (and size_monthly_price);
+      .catch(e => {
+        d.supplemented.user = 'UNKNOWN';
+        console.error('Failed to find activity --> user for: ', d.name, e)
+      });
   };
 
   const activity = await getDo(`${doUrl}/api/v1/fleets/${containerEcosystemId}/activity_history?sort=date&sort_direction=asc&page=1&per_page=2000`);
-  console.warn('supplementDroplets', 'activity', activity);
 
-  // droplets.forEach(d)
-  return droplets; // TODO: RC naughty
+  return droplets; // mutating state naughtyness
 }
 
 const getActivity = async (page = 1) => {
-  // return await getDo(`${doUrl}/api/v1/fleets/${containerEcosystemId}/activity_history?sort=date&sort_direction=asc&page=${page}&per_page=2000`);
-  return mockActivity();
-
+  return await getDo(`${doUrl}/api/v1/fleets/${containerEcosystemId}/activity_history?sort=date&sort_direction=asc&page=${page}&per_page=2000`);
+  // return mockActivity();
 }
 
 const findActivity = async (droplet, activityRes = null) => {
@@ -109,8 +134,6 @@ const findActivity = async (droplet, activityRes = null) => {
     }
   }
 
-  console.log('findActivity', 'not found', droplet)
-
   if (page === total_pages) {
     throw new Error(`Can't find droplet`, droplet);
   }
@@ -134,5 +157,3 @@ const getDo = async(url) => {
   });
   return await res.json();
 }
-
-

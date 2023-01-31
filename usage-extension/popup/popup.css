@@ -1,12 +1,55 @@
-.root {
-  min-width: 300px;
-  min-height: 300px;
+
+div {
+  font-size: 16px;
+}
+
+table {
+  font-size: 14px;
+}
+
+body, .root {
+  min-width: 780px;
+  min-height: 200px;
+}
+
+.section, .top-buttons {
+  min-width: 780px;
+}
+
+.section {
+  padding-bottom: 10px;
+}
+
+.top-buttons {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.pure-button {
+  margin-right: 10px;
+}
+
+.pure-table-nice td {
+  background-color: #e5ffe7;
+}
+
+.pure-table-naughty td {
+  background-color: #ffe5e5;
 }
 
 .top-buttons {
   display: flex;
 }
 
-.display-results {
-  display: none;
+.bi {
+  padding-right: 10px;
+}
+
+.bi-clipboard-check {
+  font-weight: bold;
+}
+
+.centre {
+  display: flex;
+  justify-content: center;
 }
