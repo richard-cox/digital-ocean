@@ -12,6 +12,9 @@ const buttonClearCache = document.getElementById("clearCache");
 const menuReport = document.getElementById("menuReport");
 const menusSupplementPage = document.getElementById("menusSupplementPage");
 
+const validatePage = document.getElementById("validate-page");
+const invalidatePage = document.getElementById("invalidate-page");
+
 const sectionReport = document.getElementById("sectionReport");
 const sectionSupplementPage = document.getElementById("sectionSupplementPage");
 
@@ -81,6 +84,16 @@ function updateButtonState() {
 }
 
 async function initialise() {
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab.url.startsWith(doUrl)) {
+    pureShowElement(invalidatePage, true)
+    return;
+  }
+
+  if (!tab.url.startsWith(`${doUrl}/droplets?`)) {
+    pureEnableElement(buttonShowCreator, false);
+  }
+
   storageHasDroplets = await storageGetDroplets();
   storageHasActivities = await storageGetActivities();
   storageHasResult = await storageGetResult();
@@ -95,6 +108,9 @@ async function initialise() {
   if (storageHasResult) {
     await displayResults();
   }
+
+  pureShowElement(validatePage, true);
+
 }
 
 
@@ -121,11 +137,6 @@ menusSupplementPage.addEventListener("click", async () => {
  * Buttons
  *****************************/ 
 buttonDisplayResults.addEventListener("click", async () => {
-  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab.url.startsWith(doUrl)) {
-    return;
-  }
-
   await displayResults();
 });
 
@@ -186,7 +197,12 @@ buttonClearCache.addEventListener("click", async () => {
 });
 
 buttonShowCreator.addEventListener("click", async () => {
-  // TODO: RC
+  const dResources = await getNeatUsageInfo();
+
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  chrome.tabs.sendMessage(tab.id, {data: dResources}, function(response) {
+    console.debug('success', response);
+  });
 });
 
 /*****************************
