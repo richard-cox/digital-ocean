@@ -16,16 +16,15 @@ body, .root {
   min-width: 780px;
 }
 
-.section {
-  padding-bottom: 10px;
+.summary-table, .results-table, .sshkey-table {
+  margin-top: 10px;
 }
 
-.summary-table {
+.results-table, .sshkey-table {
   margin-bottom: 10px;
 }
 
 .top-buttons {
-  padding-top: 10px;
   padding-bottom: 10px;
 }
 

@@ -7,21 +7,35 @@
     <!-- https://icons.getbootstrap.com/#icons -->
   </head>
   <body>
-   
-
     <div class="root">
       <div class="pure-g">
         <div class="pure-u-1-1 flex-centre"> <h2>Digital Ocean Usage</h2> </div>
       </div>
 
       <div id="validate-page" hidden>
+        <div class="pure-g top-buttons">
+          <div class="pure-u-1-5"> </div>
+          <div class="pure-u-3-5 flex-centre">
+              <button class="pure-button pure-button-primary" id="displayResults">
+                <i class="bi bi-newspaper" id="displayResultsIcon"></i>Fetch Resources
+              </button>
+              <button class="pure-button pure-button-primary" id="clearCache">
+                <i class="bi bi-trash"></i>Empty Cache
+              </button>
+              <button class="pure-button pure-button-primary" id="downloadResults">
+                <i class="bi bi-clipboard" id="downloadIcon"></i>Copy Slack Message
+              </button>
+          </div>
+          <div class="pure-u-1-5">  </div>
+        </div>
+
         <div class="pure-menu pure-menu-horizontal">
           <ul class="pure-menu-list">
-              <li class="pure-menu-item pure-menu-selected" id="menuReport">
-                  <a href="#" class="pure-menu-link">Report</a>
+              <li class="pure-menu-item pure-menu-selected" id="menuDroplets">
+                  <a href="#" class="pure-menu-link">Droplets</a>
               </li>
               <li class="pure-menu-item" id="menusSupplementPage">
-                  <a href="#" class="pure-menu-link">Supplement Page</a>
+                  <a href="#" class="pure-menu-link">SSH Keys</a>
               </li>
           </ul>
         </div>
@@ -29,20 +43,15 @@
         <div id="sectionReport" class="section">
           <div class="pure-g top-buttons">
             <div class="pure-u-1-5"> </div>
-            <div class="flex-centre pure-u-3-5">
-              <button class="pure-button pure-button-primary" id="displayResults">
-                <i class="bi bi-newspaper" id="displayResultsIcon"></i>Generate Results
-              </button>
-              <button class="pure-button pure-button-primary" id="downloadResults">
-                <i class="bi bi-clipboard" id="downloadIcon"></i>Copy Slack Message
-              </button>
-              <button class="pure-button pure-button-primary" id="clearCache">
-                <i class="bi bi-trash"></i>Clear Results
-              </button>
+            <div class="pure-u-3-5 flex-centre">
+                <button class="pure-button pure-button-primary" id="showCreator">
+                  <i class="bi bi-box-arrow-in-down-right"></i>Supplement Droplet's Page
+                </button>
             </div>
             <div class="pure-u-1-5">  </div>
           </div>
-          <div class="display-summary pure-g" id="results-root" hidden>
+
+          <div class="pure-g" id="results-root" hidden>
             <div class="pure-u-1-24"> </div>
             <div class="pure-u-22-24 flex-centre flex-column">
               <table class="pure-table pure-table-horizontal summary-table" id="summary-table">
@@ -57,7 +66,7 @@
                 </tbody>
               </table>
 
-              <table class="pure-table pure-table-horizontal" id="results-table">
+              <table class="pure-table pure-table-horizontal results-table" id="results-table">
                 <thead>
                     <tr>
                         <th>Droplet</th>
@@ -75,15 +84,24 @@
           </div>
         </div>
   
-        <div id="sectionSupplementPage" hidden class="section">
-          <div class="pure-g top-buttons">
-            <div class="pure-u-1-5"> </div>
-            <div class="pure-u-3-5 flex-centre">
-              <button class="pure-button pure-button-primary" id="showCreator">
-                <i class="bi bi-box-arrow-in-down-right"></i>Add Creator to Droplet's Page
-              </button>
+        <div id="sectionSshKeysPage" hidden class="section">
+          <div class="pure-g">
+            <div class="pure-u-1-24"> </div>
+            <div class="pure-u-22-24 flex-centre flex-column">
+              <table class="pure-table pure-table-horizontal sshkey-table" id="sshkey-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Droplet</th>
+                        <th>Droplet Owner</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody id="summary-body">
+                </tbody>
+              </table>
             </div>
-            <div class="pure-u-1-5"> </div>
+            <div class="pure-u-1-24"> </div>
           </div>
         </div>
       </div>

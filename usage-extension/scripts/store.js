@@ -1,5 +1,6 @@
 export const storageDropletsName = 'droplets';
 export const storageActivitiesName = 'activities';
+export const storageSshKeysName = 'activities';
 export const storageResult = 'result';
 
 export let storageHasDroplets = false;
@@ -27,6 +28,18 @@ export async function storageGetActivities() {
 export async function storageSetActivities(activities) {
   const serialised = activities ? JSON.stringify(activities) : activities;
   return chrome.storage.local.set({[storageActivitiesName]: serialised});
+}
+
+export async function storageGetSshKeys() {
+  return chrome.storage.local.get([storageSshKeysName]).then(res => {
+    const val = res[storageSshKeysName];
+    return val ? JSON.parse(val) : val;
+  });
+}
+
+export async function storageSetSshKeys(keys) {
+  const serialised = keys ? JSON.stringify(keys) : keys;
+  return chrome.storage.local.set({[storageSshKeysName]: serialised});
 }
 
 export async function storageGetResult() {

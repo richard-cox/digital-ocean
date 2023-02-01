@@ -1,5 +1,5 @@
 import { monthDiff } from './helpers.js';
-import { storageGetDroplets, storageGetResult, storageSetActivities, storageSetDroplets, storageSetResult } from './store.js';
+import { storageGetDroplets, storageGetResult, storageGetSshKeys, storageSetActivities, storageSetDroplets, storageSetResult, storageSetSshKeys } from './store.js';
 
 
 const containerEcosystemId = '7708d48d-9571-45a7-ab35-34da2d95fe99'; // This is gonna be static, no need to make a request to find
@@ -50,6 +50,56 @@ export const getNeatUsageInfo = async() => {
       monthlyRate: Number.parseFloat(d.size_monthly_price)
     }
   })
+}
+
+export const getNeatSshUsageInfo = async(supplementedDroplets) => {
+  const sshKeys = await getSshUsageInfo();
+  const now = new Date();
+
+  return sshKeys.ssh_keys.map(s => {
+
+    // Everything time/age based needs to be done on-demand rather than stuck in store
+    const then = new Date(s.created_at);
+
+    // General age things
+    const hours_old = Math.floor((now - then) / 1000 / 3600);
+    const too_old = hours_old >= 1 * 24 * 12;
+    const daysMinusHours = Math.floor(hours_old / 24);
+    const hoursMinusDays = hours_old % 24;
+
+     // Cost
+    // const monthsFraction = monthDiff(new Date(d.created_at), new Date());
+    // const cost = monthsFraction * d.size_monthly_price
+
+    // Is Naughty
+    // const isNaughty = too_old && !d.supplemented.doNotDelete;
+
+    const d = supplementedDroplets.find(droplet => droplet.dropletName === s.name);
+
+    return {
+      name: s.name,
+      dropletName: d ? getDisplayName(d.dropletName) : '',
+      dropletId: d?.dropletId,
+      dropletUserName: d ? getDisplayName(d.userName) : '',
+      created: `${then.toLocaleTimeString()} ${then.toLocaleDateString()}`,
+      age: `${daysMinusHours} days, ${hoursMinusDays} hours`,
+      // isNaughty,
+      // isNice: !isNaughty && d.supplemented.doNotDelete,
+      // totalCost: cost,
+      // monthlyRate: Number.parseFloat(d.size_monthly_price)
+    }
+  })
+}
+
+
+export const getSshUsageInfo = async(droplets) => {
+  let sshKeys = await storageGetSshKeys();
+  if (!sshKeys) {
+    sshKeys = await getSshKeys(); //mockDroplets(); //
+    storageSetSshKeys(sshKeys);
+  }
+  console.info('getSshUsageInfo', 'ssh keys', sshKeys);
+  return sshKeys;
 }
 
 export const getUsageInfo = async() => {
@@ -104,8 +154,6 @@ const supplementDroplets = async (droplets) => {
       });
   };
 
-  const activity = await getDo(`${doUrl}/api/v1/fleets/${containerEcosystemId}/activity_history?sort=date&sort_direction=asc&page=1&per_page=2000`);
-
   return droplets; // mutating state naughtyness
 }
 
@@ -154,6 +202,18 @@ const findActivity = async (droplet, activityRes = null) => {
     currentPos: 0
   })
 
+}
+
+export const getSshKeys = async(page = 1) => {
+  const resJson = await getDo(`${doUrl}/api/v1/ssh_keys?page=${page}&sort=created_at&sort_direction=desc&per_page=2000`);
+  if (resJson.meta.pagination.next_page) {
+    const nextPageRes = await getSshKeys(++page);
+    resJson.ssh_keys = [
+      ...resJson.ssh_keys,
+      ...nextPageRes.ssh_keys
+    ]
+  }
+  return resJson;
 }
 
 const getDo = async(url) => {

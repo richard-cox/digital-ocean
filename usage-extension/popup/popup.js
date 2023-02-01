@@ -1,4 +1,4 @@
-import { clearCache, doUrl, getNeatUsageInfo } from '../scripts/do.js';
+import { clearCache, doUrl, getNeatSshUsageInfo, getNeatUsageInfo } from '../scripts/do.js';
 import { tableAddCell, tableEmpty } from '../scripts/table-helpers.js';
 import { pureShowElement, pureEnableElement } from '../scripts/pure-helper.js';
 import { storageActivitiesName, storageDropletsName, storageGetActivities, storageGetDroplets, storageGetResult, storageResult } from '../scripts/store.js';
@@ -9,20 +9,21 @@ const buttonDownloadResults  = document.getElementById("downloadResults");
 const buttonShowCreator = document.getElementById("showCreator");
 const buttonClearCache = document.getElementById("clearCache");
 
-const menuReport = document.getElementById("menuReport");
+const menuDroplets = document.getElementById("menuDroplets");
 const menusSupplementPage = document.getElementById("menusSupplementPage");
 
 const validatePage = document.getElementById("validate-page");
 const invalidatePage = document.getElementById("invalidate-page");
 
 const sectionReport = document.getElementById("sectionReport");
-const sectionSupplementPage = document.getElementById("sectionSupplementPage");
+const sectionSshKeysPage = document.getElementById("sectionSshKeysPage");
 
 const buttonDisplayResultsIcon = document.getElementById("displayResultsIcon");
 const buttonDownloadResultsIcon = document.getElementById("downloadIcon");
 
 const resultsTable = document.getElementById('results-table');
 const summaryTable = document.getElementById('summary-table');
+const sshKeyTable = document.getElementById('sshkey-table');
 
 let storageHasDroplets, storageHasActivities, storageHasResult, generatingResults = null;
 
@@ -32,55 +33,19 @@ let storageHasDroplets, storageHasActivities, storageHasResult, generatingResult
 async function displayResults() {
   generatingResults = true;
 
-  const resultsRoot = document.getElementById('results-root');
-
   pureEnableElement(buttonDisplayResults, false);
 
   buttonDisplayResultsIcon.classList.add('bi-arrow-clockwise')
   buttonDisplayResultsIcon.classList.remove('bi-newspaper')
 
+  const resultsRoot = document.getElementById('results-root');
+
   try {
     const droplets = await getNeatUsageInfo();
+    await displayDroplets(droplets);
 
-    tableEmpty(resultsTable);
-    tableEmpty(summaryTable);
-
-    const summary = {
-      nice: 0,
-      naughty: 0,
-      other: 0,
-      cost: 0,
-      monthlyRate: 0
-    }
-
-    droplets.forEach(d => {
-      const row = resultsTable.getElementsByTagName('tbody')[0].insertRow(-1);
-
-      if (d.isNaughty) {
-        row.classList.add("pure-table-naughty");
-        summary.naughty++;
-      } else if (d.isNice) {
-        row.classList.add("pure-table-nice");
-        summary.nice++;
-      } else  {
-        summary.other++;
-      }
-
-      summary.cost += d.totalCost;
-      summary.monthlyRate += d.monthlyRate;
-
-      tableAddCell(row, 0, d.dropletName, `${doUrl}/droplets/${d.dropletId}`);
-      tableAddCell(row, 1, d.userName);
-      tableAddCell(row, 2, `Date: ${d.created}<br>Age: ${d.age}`);
-      tableAddCell(row, 3, `$${d.totalCost.toFixed(2)}`);
-    });
-
-    const summaryRow = summaryTable.getElementsByTagName('tbody')[0].insertRow(-1);
-    const dropletSummaryCell = summaryRow.insertCell(0);
-    dropletSummaryCell.innerHTML = `<span class="nice">${summary.nice}</span>/<span>${summary.other}</span>/<span class="naughty">${summary.naughty}</span>`
-
-    tableAddCell(summaryRow, 1, `$${summary.monthlyRate.toFixed(2)}`);
-    tableAddCell(summaryRow, 2, `$${summary.cost.toFixed(2)}`);
+    const sshKeys = await getNeatSshUsageInfo(droplets);
+    await displaySshKeys(sshKeys)
 
   } catch (err) {
     console.error('Failed to get usage: ', err);
@@ -99,9 +64,85 @@ async function displayResults() {
   // });
 }
 
+async function displayDroplets(droplets) {
+  tableEmpty(resultsTable);
+  tableEmpty(summaryTable);
+
+  const summary = {
+    nice: 0,
+    naughty: 0,
+    other: 0,
+    cost: 0,
+    monthlyRate: 0
+  }
+
+  droplets.forEach(d => {
+    const row = resultsTable.getElementsByTagName('tbody')[0].insertRow(-1);
+
+    if (d.isNaughty) {
+      row.classList.add("pure-table-naughty");
+      summary.naughty++;
+    } else if (d.isNice) {
+      row.classList.add("pure-table-nice");
+      summary.nice++;
+    } else  {
+      summary.other++;
+    }
+
+    summary.cost += d.totalCost;
+    summary.monthlyRate += d.monthlyRate;
+
+    tableAddCell(row, 0, d.dropletName, `${doUrl}/droplets/${d.dropletId}`);
+    tableAddCell(row, 1, d.userName);
+    tableAddCell(row, 2, `Date: ${d.created}<br>Age: ${d.age}`);
+    tableAddCell(row, 3, `$${d.totalCost.toFixed(2)}`);
+  });
+
+  const summaryRow = summaryTable.getElementsByTagName('tbody')[0].insertRow(-1);
+  const dropletSummaryCell = summaryRow.insertCell(0);
+  dropletSummaryCell.innerHTML = `<span class="nice">${summary.nice}</span>/<span>${summary.other}</span>/<span class="naughty">${summary.naughty}</span>`
+
+  tableAddCell(summaryRow, 1, `$${summary.monthlyRate.toFixed(2)}`);
+  tableAddCell(summaryRow, 2, `$${summary.cost.toFixed(2)}`);
+}
+
+async function displaySshKeys(sshKeys) {
+  tableEmpty(sshKeyTable);
+
+  sshKeys.forEach(s => {
+    const row = sshKeyTable.getElementsByTagName('tbody')[0].insertRow(-1);
+
+    // if (d.isNaughty) {
+    //   row.classList.add("pure-table-naughty");
+    //   summary.naughty++;
+    // } else if (d.isNice) {
+    //   row.classList.add("pure-table-nice");
+    //   summary.nice++;
+    // } else  {
+    //   summary.other++;
+    // }
+
+    // summary.cost += d.totalCost;
+    // summary.monthlyRate += d.monthlyRate;
+
+    
+    tableAddCell(row, 0, s.name);
+    if (s.dropletId) {
+      tableAddCell(row, 1, s.dropletName, `${doUrl}/droplets/${s.dropletId}`);
+      tableAddCell(row, 2, s.dropletUserName);
+    } else {
+      tableAddCell(row, 1, '');
+      tableAddCell(row, 2, '');
+    }
+    tableAddCell(row, 3, `Date: ${s.created}<br>Age: ${s.age}`);
+  });
+}
+
 function updateButtonState() {
   pureEnableElement(buttonClearCache, storageHasDroplets || storageHasActivities)
   pureEnableElement(buttonDownloadResults, storageHasResult);
+  pureEnableElement(buttonShowCreator, storageHasResult);
+
   if (!generatingResults) {
     pureEnableElement(buttonDisplayResults, !storageHasResult);
   }
@@ -141,16 +182,16 @@ async function initialise() {
 /*****************************
  * Menu
  *****************************/ 
-menuReport.addEventListener("click", async () => {
+menuDroplets.addEventListener("click", async () => {
   pureShowElement(sectionReport, true);
   sectionReport.classList.add("pure-menu-selected");
 
-  pureShowElement(sectionSupplementPage, false);
+  pureShowElement(sectionSshKeysPage, false);
   sectionReport.classList.remove("pure-menu-selected");
 })
 
 menusSupplementPage.addEventListener("click", async () => {
-  pureShowElement(sectionSupplementPage, true);
+  pureShowElement(sectionSshKeysPage, true);
   sectionReport.classList.add("pure-menu-selected");
 
   pureShowElement(sectionReport, false);
@@ -166,6 +207,7 @@ buttonDisplayResults.addEventListener("click", async () => {
 
 buttonDownloadResults.addEventListener("click", async () => {
   const droplets = await getNeatUsageInfo();
+  const sshKeys = await getNeatSshUsageInfo(droplets);
 
   const naughtyList = droplets.reduce((res, d) => {
     if (!d.isNaughty) {
@@ -218,6 +260,7 @@ buttonDownloadResults.addEventListener("click", async () => {
 buttonClearCache.addEventListener("click", async () => {
   await clearCache();
   tableEmpty(resultsTable);
+  tableEmpty(summaryTable);
 });
 
 buttonShowCreator.addEventListener("click", async () => {

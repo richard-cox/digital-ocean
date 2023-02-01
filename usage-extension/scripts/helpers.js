@@ -29,13 +29,21 @@ export function obfuscateText(text) {
 }
 
 export function monthDiff(d1, d2) {
-  // var months = 0;
-  console.warn('0', d1, d2);
+  if (d1.getMonth() === d2.getMonth() && d1.getFullYear() == d2.getFullYear()) {
+    // first month is last month
+
+    if (d1.getDate() === d2.getDate()) {
+      return 0; // We're ignoring hours
+    }
+
+    const daysInFirstMonth = daysInMonth(d1.getMonth(), d1.getFullYear());
+    return d1.getDate() / daysInFirstMonth;
+  }
+
   // Fraction of starting month
   const daysInFirstMonth = daysInMonth(d1.getMonth(), d1.getFullYear());
   const daysUp = daysInFirstMonth - d1.getDate();
   const fractionDaysInFirstMonth = daysUp / daysInFirstMonth;
-  console.warn('1', fractionDaysInFirstMonth)
 
   // Whole months
   let counterMonth = d1.getMonth();
@@ -59,14 +67,10 @@ export function monthDiff(d1, d2) {
   }
   wholeMonths -= 1; // Ignore initial month
   wholeMonths = wholeMonths <= 0 ? 0 : wholeMonths;
-  console.warn('2', wholeMonths)
-
   
   // Fraction of ending month
   const daysInLastMonth = daysInMonth(d2.getMonth(), d2.getFullYear());
   const fractionDaysInLastMonth = d2.getDate() / daysInLastMonth;
-  console.warn('3', fractionDaysInLastMonth)
-
 
   return fractionDaysInFirstMonth + wholeMonths + fractionDaysInLastMonth;
 }
