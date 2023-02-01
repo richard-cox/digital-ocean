@@ -13,7 +13,8 @@ Info
   - https://docs.digitalocean.com/reference/api/api-reference/#operation/dropletActions_list
 - PROBLEM 3
   - Droplet creator can be ascertained via the project's activity log. 
-  - Neither CLI or v2 API provide project activity // TODO: RC create issue
+  - Neither CLI or v2 API provide project activity 
+  - I created https://ideas.digitalocean.com/core-compute-platform/p/determine-creator-of-a-droplet
 - PROBLEM 4
   - The DO website uses a different API (`api/v1`) served through the website's domain to fetch activity
   - This endpoint does not work with the normal v2 auth mechanism

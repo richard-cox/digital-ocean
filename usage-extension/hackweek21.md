@@ -2,6 +2,10 @@
 
 Create a chrome extension (compatible with Brave) that makes API requests to the v1 endpoint using the same auth as the DO website.
 
+## Features
+
+- Results can take a while to fetch, so are cached in local storage. To fetch new results results can be cleared with the button in the popup
+
 This will be able to correlate DO droplets and their creator
 
 ## Loading the plugin
@@ -26,6 +30,13 @@ This will be able to correlate DO droplets and their creator
 - Copy Slack Message should be replaced with button to send slack DM to specific users 
 - The cost information per hour is not provided in the type of droplet the website gets. Other API requests would be needed (we do get a `size_id`) OR we do something more fun with the `size_monthly_price` (need to convert total days into calendar months)
 - Largest size a popup can be is 800x600
-- Project Id is hardcoded
-- "matches": ["<all_urls>"], // TODO: RC
+- Project Id is hardcoded (we could go out and fetch it via /api/v1/fleets)
+- Cost only includes droplet compute cost (size of vm), rather than floating ip, backup, etc
+- "matches
+
+
+NO supplement data without button press
+// TODO: RC active droplet (if do not delete in use)
+// TODO: RC ssh keys
+// TODO: RC dark mode
 

@@ -12,5 +12,4 @@ export function pureEnableElement(element, enable) {
   } else {
     element.setAttribute('disabled', "")
   }
-
 }

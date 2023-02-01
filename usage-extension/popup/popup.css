@@ -20,6 +20,10 @@ body, .root {
   padding-bottom: 10px;
 }
 
+.summary-table {
+  margin-bottom: 10px;
+}
+
 .top-buttons {
   padding-top: 10px;
   padding-bottom: 10px;
@@ -29,11 +33,11 @@ body, .root {
   margin-right: 10px;
 }
 
-.pure-table-nice td {
+.pure-table-nice td, .nice {
   background-color: #e5ffe7;
 }
 
-.pure-table-naughty td {
+.pure-table-naughty td, .naughty {
   background-color: #ffe5e5;
 }
 
@@ -49,7 +53,11 @@ body, .root {
   font-weight: bold;
 }
 
-.centre {
+.flex-centre {
   display: flex;
   justify-content: center;
+}
+
+.flex-column {
+  flex-direction: column;
 }

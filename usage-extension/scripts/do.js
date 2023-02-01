@@ -1,3 +1,4 @@
+import { monthDiff } from './helpers.js';
 import { storageGetDroplets, storageGetResult, storageSetActivities, storageSetDroplets, storageSetResult } from './store.js';
 
 
@@ -17,20 +18,37 @@ function getDisplayName(name) {
 
 export const getNeatUsageInfo = async() => {
   const droplets = await getUsageInfo();
-  return droplets.map(d => {
-     const hoursOld = d.supplemented.hours_old;
-     const daysMinusHours = Math.floor(hoursOld / 24);
-     const hoursMinusDays = hoursOld % 24;
+  const now = new Date();
 
-     return {
+  return droplets.map(d => {
+
+    // Everything time/age based needs to be done on-demand rather than stuck in store
+    const then = new Date(d.created_at);
+
+    // General age things
+    const hours_old = Math.floor((now - then) / 1000 / 3600);
+    const too_old = hours_old >= 1 * 24 * 12;
+    const daysMinusHours = Math.floor(hours_old / 24);
+    const hoursMinusDays = hours_old % 24;
+
+     // Cost
+    const monthsFraction = monthDiff(new Date(d.created_at), new Date());
+    const cost = monthsFraction * d.size_monthly_price
+
+    // Is Naughty
+    const isNaughty = too_old && !d.supplemented.doNotDelete;
+
+    return {
       dropletName: getDisplayName(d.name),
       dropletId: d.id,
       userName: getDisplayName(d.supplemented.user),
-      created: new Date(d.created_at).toLocaleString(),
-      age: `${daysMinusHours}:${hoursMinusDays}`,
-      isNaughty: d.supplemented.isNaughty,
-      isNice: !d.supplemented.isNaughty && d.supplemented.doNotDelete
-     }
+      created: `${then.toLocaleTimeString()} ${then.toLocaleDateString()}`,
+      age: `${daysMinusHours} days, ${hoursMinusDays} hours`,
+      isNaughty,
+      isNice: !isNaughty && d.supplemented.doNotDelete,
+      totalCost: cost,
+      monthlyRate: Number.parseFloat(d.size_monthly_price)
+    }
   })
 }
 
@@ -66,25 +84,14 @@ export const getDroplets = async(page = 1) => {
 }
 
 const supplementDroplets = async (droplets) => {
-  const now = new Date();
   let activityRes;
 
   for (const d of droplets){
 
-    const then = new Date(d.created_at);
-
-    const hours_old = Math.floor((now - then) / 1000 / 3600);
-    const days_old = Math.floor(hours_old / 24);
-
     d.supplemented = {
-      hours_old,
-      days_old,
-      too_old: hours_old >= 1 * 24 * 12,
       doNotDelete: !!d.tags?.find(t => t.name === 'DO_NOT_DELETE'),
       user: undefined,
     }
-
-    d.supplemented.isNaughty = d.supplemented.too_old && !d.supplemented.doNotDelete;
 
     await findActivity(d, activityRes)
       .then(res => {

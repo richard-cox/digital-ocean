@@ -22,6 +22,7 @@ const buttonDisplayResultsIcon = document.getElementById("displayResultsIcon");
 const buttonDownloadResultsIcon = document.getElementById("downloadIcon");
 
 const resultsTable = document.getElementById('results-table');
+const summaryTable = document.getElementById('summary-table');
 
 let storageHasDroplets, storageHasActivities, storageHasResult, generatingResults = null;
 
@@ -42,21 +43,44 @@ async function displayResults() {
     const droplets = await getNeatUsageInfo();
 
     tableEmpty(resultsTable);
+    tableEmpty(summaryTable);
+
+    const summary = {
+      nice: 0,
+      naughty: 0,
+      other: 0,
+      cost: 0,
+      monthlyRate: 0
+    }
 
     droplets.forEach(d => {
       const row = resultsTable.getElementsByTagName('tbody')[0].insertRow(-1);
 
       if (d.isNaughty) {
         row.classList.add("pure-table-naughty");
+        summary.naughty++;
       } else if (d.isNice) {
         row.classList.add("pure-table-nice");
+        summary.nice++;
+      } else  {
+        summary.other++;
       }
+
+      summary.cost += d.totalCost;
+      summary.monthlyRate += d.monthlyRate;
 
       tableAddCell(row, 0, d.dropletName, `${doUrl}/droplets/${d.dropletId}`);
       tableAddCell(row, 1, d.userName);
-      tableAddCell(row, 2, d.created);
-      tableAddCell(row, 3, d.age);
-    })
+      tableAddCell(row, 2, `Date: ${d.created}<br>Age: ${d.age}`);
+      tableAddCell(row, 3, `$${d.totalCost.toFixed(2)}`);
+    });
+
+    const summaryRow = summaryTable.getElementsByTagName('tbody')[0].insertRow(-1);
+    const dropletSummaryCell = summaryRow.insertCell(0);
+    dropletSummaryCell.innerHTML = `<span class="nice">${summary.nice}</span>/<span>${summary.other}</span>/<span class="naughty">${summary.naughty}</span>`
+
+    tableAddCell(summaryRow, 1, `$${summary.monthlyRate.toFixed(2)}`);
+    tableAddCell(summaryRow, 2, `$${summary.cost.toFixed(2)}`);
 
   } catch (err) {
     console.error('Failed to get usage: ', err);

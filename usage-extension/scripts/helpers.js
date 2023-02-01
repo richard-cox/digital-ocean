@@ -28,6 +28,49 @@ export function obfuscateText(text) {
   return md5(text);
 }
 
+export function monthDiff(d1, d2) {
+  // var months = 0;
+  console.warn('0', d1, d2);
+  // Fraction of starting month
+  const daysInFirstMonth = daysInMonth(d1.getMonth(), d1.getFullYear());
+  const daysUp = daysInFirstMonth - d1.getDate();
+  const fractionDaysInFirstMonth = daysUp / daysInFirstMonth;
+  console.warn('1', fractionDaysInFirstMonth)
+
+  // Whole months
+  let counterMonth = d1.getMonth();
+  let counterYear = d1.getFullYear();
+  let counterDate = new Date(d1.getTime());
+  let wholeMonths = 0;
+
+  while (!(counterDate.getMonth() === d2.getMonth() && counterDate.getFullYear() === d2.getFullYear())) {
+    if (counterDate.getMonth() === 11) {
+      counterYear++;
+      counterMonth = 0;
+    } else {
+      counterMonth++;
+    }
+    counterDate = new Date(counterYear, counterMonth, 1);
+    wholeMonths++;
+
+    if (wholeMonths > 100) {
+      break;
+    }
+  }
+  wholeMonths -= 1; // Ignore initial month
+  wholeMonths = wholeMonths <= 0 ? 0 : wholeMonths;
+  console.warn('2', wholeMonths)
+
+  
+  // Fraction of ending month
+  const daysInLastMonth = daysInMonth(d2.getMonth(), d2.getFullYear());
+  const fractionDaysInLastMonth = d2.getDate() / daysInLastMonth;
+  console.warn('3', fractionDaysInLastMonth)
+
+
+  return fractionDaysInFirstMonth + wholeMonths + fractionDaysInLastMonth;
+}
+
 
 //  A formatted version of a popular md5 implementation.
 //  Original copyright (c) Paul Johnston & Greg Holt.
@@ -74,4 +117,13 @@ function md5(inputString) {
       b=ii(b,c,d,a,x[i+ 9],21, -343485551);a=ad(a,olda);b=ad(b,oldb);c=ad(c,oldc);d=ad(d,oldd);
   }
   return rh(a)+rh(b)+rh(c)+rh(d);
+}
+
+
+// Month in JavaScript is 0-indexed (January is 0, February is 1, etc), 
+// but by using 0 as the day it will give us the last day of the prior
+// month. So passing in 1 as the month number will return the last day
+// of January, not February
+function daysInMonth (month, year) {
+  return new Date(year, month, 0).getDate();
 }

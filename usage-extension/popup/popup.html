@@ -11,7 +11,7 @@
 
     <div class="root">
       <div class="pure-g">
-        <div class="pure-u-1-1 centre"> <h2>Digital Ocean Usage</h2> </div>
+        <div class="pure-u-1-1 flex-centre"> <h2>Digital Ocean Usage</h2> </div>
       </div>
 
       <div id="validate-page" hidden>
@@ -29,7 +29,7 @@
         <div id="sectionReport" class="section">
           <div class="pure-g top-buttons">
             <div class="pure-u-1-5"> </div>
-            <div class="centre pure-u-3-5">
+            <div class="flex-centre pure-u-3-5">
               <button class="pure-button pure-button-primary" id="displayResults">
                 <i class="bi bi-newspaper" id="displayResultsIcon"></i>Generate Results
               </button>
@@ -42,16 +42,28 @@
             </div>
             <div class="pure-u-1-5">  </div>
           </div>
-          <div class="display-results pure-g" id="results-root" hidden>
+          <div class="display-summary pure-g" id="results-root" hidden>
             <div class="pure-u-1-24"> </div>
-            <div class="pure-u-22-24 centre">
+            <div class="pure-u-22-24 flex-centre flex-column">
+              <table class="pure-table pure-table-horizontal summary-table" id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Running Droplets</th>
+                        <th>Monthly cost of Running Droplets</th>
+                        <th>Total Cost of Running Droplets</th>
+                    </tr>
+                </thead>
+                <tbody id="summary-body">
+                </tbody>
+              </table>
+
               <table class="pure-table pure-table-horizontal" id="results-table">
                 <thead>
                     <tr>
                         <th>Droplet</th>
                         <th>User</th>
                         <th>Created</th>
-                        <th>Age (D:H)</th>
+                        <th>Cost(ish)</th>
                     </tr>
                 </thead>
                 <tbody id="results-body">
@@ -66,7 +78,7 @@
         <div id="sectionSupplementPage" hidden class="section">
           <div class="pure-g top-buttons">
             <div class="pure-u-1-5"> </div>
-            <div class="pure-u-3-5 centre">
+            <div class="pure-u-3-5 flex-centre">
               <button class="pure-button pure-button-primary" id="showCreator">
                 <i class="bi bi-box-arrow-in-down-right"></i>Add Creator to Droplet's Page
               </button>
@@ -76,7 +88,7 @@
         </div>
       </div>
 
-      <div id="invalidate-page" class="centre" style="padding-top: 40px;" hidden>
+      <div id="invalidate-page" class="flex-centre" style="padding-top: 40px;" hidden>
           Extension must be run from a Digital Ocean tab
       </div>
 

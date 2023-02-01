@@ -15,11 +15,16 @@ export function tableAddCell(row, cellIndex, text, url = null) {
        });
       return false;
     }
+    cell.appendChild(element);
   } else {
-    element = document.createTextNode(text);
+    const parts = text.split('<br>');
+    parts.forEach((p, index) => {
+      cell.appendChild(document.createTextNode(p));
+      if (index < parts.length - 1) {
+        cell.appendChild(document.createElement('br'));
+      }
+    })
   }
-
-  cell.appendChild(element);
 }
 
 export function tableAddCellLink() {
