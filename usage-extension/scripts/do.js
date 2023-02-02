@@ -9,6 +9,7 @@ export const clearCache  = async() => {
   await storageSetDroplets(null);
   await storageSetActivities(null);
   await storageSetResult(null);
+  await storageSetSshKeys(null);
 }
 
 function getDisplayName(name) {
@@ -63,36 +64,28 @@ export const getNeatSshUsageInfo = async(supplementedDroplets) => {
 
     // General age things
     const hours_old = Math.floor((now - then) / 1000 / 3600);
-    const too_old = hours_old >= 1 * 24 * 12;
     const daysMinusHours = Math.floor(hours_old / 24);
     const hoursMinusDays = hours_old % 24;
-
-     // Cost
-    // const monthsFraction = monthDiff(new Date(d.created_at), new Date());
-    // const cost = monthsFraction * d.size_monthly_price
-
-    // Is Naughty
-    // const isNaughty = too_old && !d.supplemented.doNotDelete;
 
     const d = supplementedDroplets.find(droplet => droplet.dropletName === s.name);
 
     return {
+      id: s.id,
       name: s.name,
       dropletName: d ? getDisplayName(d.dropletName) : '',
       dropletId: d?.dropletId,
       dropletUserName: d ? getDisplayName(d.userName) : '',
       created: `${then.toLocaleTimeString()} ${then.toLocaleDateString()}`,
       age: `${daysMinusHours} days, ${hoursMinusDays} hours`,
-      // isNaughty,
-      // isNice: !isNaughty && d.supplemented.doNotDelete,
-      // totalCost: cost,
-      // monthlyRate: Number.parseFloat(d.size_monthly_price)
     }
   })
 }
 
+export const deleteSshKey = async(keyId) => {
+  await deleteDo(`${doUrl}/api/v1/ssh_keys/${keyId}`);
+}
 
-export const getSshUsageInfo = async(droplets) => {
+export const getSshUsageInfo = async() => {
   let sshKeys = await storageGetSshKeys();
   if (!sshKeys) {
     sshKeys = await getSshKeys(); //mockDroplets(); //
@@ -159,7 +152,6 @@ const supplementDroplets = async (droplets) => {
 
 const getActivity = async (page = 1) => {
   return await getDo(`${doUrl}/api/v1/fleets/${containerEcosystemId}/activity_history?sort=date&sort_direction=asc&page=${page}&per_page=2000`);
-  // return mockActivity();
 }
 
 const findActivity = async (droplet, activityRes = null) => {
@@ -223,4 +215,10 @@ const getDo = async(url) => {
     },
   });
   return await res.json();
+}
+
+const deleteDo = async(url) => {
+  return await fetch(url, {
+    "method": "DELETE"
+  });
 }

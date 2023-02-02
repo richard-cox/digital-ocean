@@ -1,37 +1,68 @@
+import { openTabKeepContext } from './helpers.js';
+
 export function tableAddCell(row, cellIndex, text, url = null) {
   const cell = row.insertCell(cellIndex)
-
-  let element;
-  if (url) {
-    element = document.createElement("a");
-    element.setAttribute("href", url);
-    element.innerHTML = text;
-    element.target = "_blank";
-    element.onclick = (e) => {
-      e.preventDefault();
-      chrome.tabs.create({
-        url,
-        active: false,
-       });
-      return false;
+  const parts = text.split('<br>');
+  parts.forEach((p, index) => {
+    cell.appendChild(document.createTextNode(p));
+    if (index < parts.length - 1) {
+      cell.appendChild(document.createElement('br'));
     }
-    cell.appendChild(element);
-  } else {
-    const parts = text.split('<br>');
-    parts.forEach((p, index) => {
-      cell.appendChild(document.createTextNode(p));
-      if (index < parts.length - 1) {
-        cell.appendChild(document.createElement('br'));
-      }
-    })
-  }
+  });
+
+  return cell;
 }
 
-export function tableAddCellLink() {
-  const cell = row.insertCell(row, cellIndex, url, text)
+export function tableAddCellLink(row, cellIndex, text, url) {
+  const cell = row.insertCell(cellIndex)
 
-  let newText = document.createTextNode(text);
-  cell.appendChild(newText);
+  const element = document.createElement("a");
+  element.setAttribute("href", url);
+  element.innerHTML = text;
+  element.target = "_blank";
+  element.onclick = (e) => {
+    e.preventDefault();
+    openTabKeepContext(url);
+    return false;
+  }
+  cell.appendChild(element);
+
+  return cell;
+}
+
+export function tableAddCellButton(row, cellIndex, buttonText, buttonIcon, buttonClick) {
+  const cell = row.insertCell(cellIndex);
+
+  const button = document.createElement("button");
+  button.classList.add('pure-button')
+  button.classList.add('pure-button-primary')
+  button.onclick = buttonClick;
+
+  const icon = document.createElement("i");
+  icon.classList.add('bi');
+  icon.classList.add(buttonIcon);
+
+  button.appendChild(icon);
+
+  button.innerHTML += buttonText
+
+  // const element = document.createElement("button");
+
+  // element.setAttribute("href", url);
+  // element.innerHTML = text;
+  // element.target = "_blank";
+  // element.onclick = (e) => {
+  //   e.preventDefault();
+  //   chrome.tabs.create({
+  //     url,
+  //     active: false,
+  //    });
+  //   return false;
+  // }
+
+  cell.appendChild(button);
+
+  return cell;
 }
 
 export function tableEmpty(table) {

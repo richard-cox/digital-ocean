@@ -16,7 +16,7 @@ body, .root {
   min-width: 780px;
 }
 
-.summary-table, .results-table, .sshkey-table {
+.summary-table, .results-table, .sshkey-table, .sshkey-summary-table {
   margin-top: 10px;
 }
 
@@ -24,8 +24,8 @@ body, .root {
   margin-bottom: 10px;
 }
 
-.top-buttons {
-  padding-bottom: 10px;
+.section > .top-buttons {
+  margin-top: 10px;
 }
 
 .pure-button {

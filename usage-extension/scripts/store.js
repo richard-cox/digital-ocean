@@ -3,9 +3,6 @@ export const storageActivitiesName = 'activities';
 export const storageSshKeysName = 'activities';
 export const storageResult = 'result';
 
-export let storageHasDroplets = false;
-export let storageHasActivities = false;
-
 export async function storageGetDroplets() {
   return chrome.storage.local.get([storageDropletsName]).then(res => {
     const val = res[storageDropletsName];
@@ -51,4 +48,16 @@ export async function storageGetResult() {
 
 export async function storageSetResult(result) {
   return chrome.storage.local.set({[storageResult]: result});
+}
+
+export async function outputStoreState() {
+  const stamp = 'Cache Info ' + new Date().getTime();
+  console.groupCollapsed(stamp);
+  console.info('Droplets', await storageGetDroplets());
+  console.info('Droplet Results', await storageGetResult());
+  console.info('Activities', await storageGetActivities());
+  console.info('SSH Keys', await storageGetSshKeys());
+  console.groupEnd(stamp);
+
+  // await storageSetSshKeys(null);
 }

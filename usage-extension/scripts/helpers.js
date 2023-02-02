@@ -75,6 +75,17 @@ export function monthDiff(d1, d2) {
   return fractionDaysInFirstMonth + wholeMonths + fractionDaysInLastMonth;
 }
 
+export function openTabKeepContext(url) {
+  chrome.tabs.create({
+    url,
+    active: false,
+   });
+}
+
+export function changeTabKeepContext(url) {
+  chrome.tabs.update(undefined, { url });
+}
+
 
 //  A formatted version of a popular md5 implementation.
 //  Original copyright (c) Paul Johnston & Greg Holt.
