@@ -1,12 +1,12 @@
 export function copyTextToClipboard(text) {
   //Create a textbox field where we can insert text to. 
-  var copyFrom = document.createElement("textarea");
+  var copyFrom = document.createElement('textarea');
 
   //Set the text content to be the text you wished to copy.
   copyFrom.textContent = text;
 
   //Append the textbox field into the body as a child. 
-  //"execCommand()" only works when there exists selected text, and the text is inside 
+  //'execCommand()' only works when there exists selected text, and the text is inside 
   //document.body (meaning the text is part of a valid rendered HTML element).
   document.body.appendChild(copyFrom);
 
@@ -92,8 +92,8 @@ export function changeTabKeepContext(url) {
 //  The function itself is now 42 lines long.
 
 function md5(inputString) {
-  var hc="0123456789abcdef";
-  function rh(n) {var j,s="";for(j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
+  var hc='0123456789abcdef';
+  function rh(n) {var j,s='';for(j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
   function ad(x,y) {var l=(x&0xFFFF)+(y&0xFFFF);var m=(x>>16)+(y>>16)+(l>>16);return (m<<16)|(l&0xFFFF);}
   function rl(n,c)            {return (n<<c)|(n>>>(32-c));}
   function cm(q,a,b,x,s,t)    {return ad(rl(ad(ad(a,q),ad(x,t)),s),b);}

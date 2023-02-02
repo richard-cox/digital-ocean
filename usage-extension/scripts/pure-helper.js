@@ -10,6 +10,6 @@ export function pureEnableElement(element, enable) {
   if (enable) {
     element.removeAttribute('disabled')
   } else {
-    element.setAttribute('disabled', "")
+    element.setAttribute('disabled', '')
   }
 }

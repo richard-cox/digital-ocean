@@ -210,8 +210,8 @@ export const getSshKeys = async(page = 1) => {
 
 const getDo = async(url) => {
   const res = await fetch(url, {
-    "headers": {
-      "accept": "application/json",
+    'headers': {
+      'accept': 'application/json',
     },
   });
   return await res.json();
@@ -219,6 +219,28 @@ const getDo = async(url) => {
 
 const deleteDo = async(url) => {
   return await fetch(url, {
-    "method": "DELETE"
+    'method': 'DELETE'
   });
+}
+
+export const getDropletUsageTextSummary = async () => {
+  const droplets = await getNeatUsageInfo();
+  const sshKeys = await getNeatSshUsageInfo(droplets); // TODO: RC Remove
+
+  const naughtyList = droplets.reduce((res, d) => {
+    if (!d.isNaughty) {
+      return res;
+    }
+
+    if (!res[d.userName]) {
+      res[d.userName] = [];
+    }
+
+    res[d.userName].push(`\`${d.dropletName}\` (${doUrl}/droplets/${d.dropletId})`)
+
+    return res;
+  }, {})
+
+  return Object.entries(naughtyList)
+    .map(([userName, machines]) => `${userName}: ${machines.join(',')} \n`);
 }

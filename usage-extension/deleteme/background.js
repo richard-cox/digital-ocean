@@ -2,7 +2,7 @@ import { doUrl, getUsageInfo } from '../scripts/do.js';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.action.setBadgeText({
-    text: "",
+    text: '',
   });
 });
 
@@ -54,16 +54,16 @@ chrome.action.onClicked.addListener(async (tab) => {
     //   text: nextState,
     // });
 
-    // if (nextState === "ON") {
+    // if (nextState === 'ON') {
     //   // Insert the CSS file when the user turns the extension on
     //   await chrome.scripting.insertCSS({
-    //     files: ["focus-mode.css"],
+    //     files: ['focus-mode.css'],
     //     target: { tabId: tab.id },
     //   });
-    // } else if (nextState === "OFF") {
+    // } else if (nextState === 'OFF') {
     //   // Remove the CSS file when the user turns the extension off
     //   await chrome.scripting.removeCSS({
-    //     files: ["focus-mode.css"],
+    //     files: ['focus-mode.css'],
     //     target: { tabId: tab.id },
     //   });
     // }

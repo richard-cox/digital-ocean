@@ -2,7 +2,7 @@
 // import { storageGetResult } from './store';
 
 function supplement(dResources) {
-  const dElements = document.querySelectorAll("[data-value]");
+  const dElements = document.querySelectorAll('[data-value]');
 
   dElements.forEach(dE => {
     const dropletName = dE.getAttribute('data-value');

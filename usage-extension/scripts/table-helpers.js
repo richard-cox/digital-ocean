@@ -16,10 +16,10 @@ export function tableAddCell(row, cellIndex, text, url = null) {
 export function tableAddCellLink(row, cellIndex, text, url) {
   const cell = row.insertCell(cellIndex)
 
-  const element = document.createElement("a");
-  element.setAttribute("href", url);
+  const element = document.createElement('a');
+  element.setAttribute('href', url);
   element.innerHTML = text;
-  element.target = "_blank";
+  element.target = '_blank';
   element.onclick = (e) => {
     e.preventDefault();
     openTabKeepContext(url);
@@ -33,12 +33,12 @@ export function tableAddCellLink(row, cellIndex, text, url) {
 export function tableAddCellButton(row, cellIndex, buttonText, buttonIcon, buttonClick) {
   const cell = row.insertCell(cellIndex);
 
-  const button = document.createElement("button");
+  const button = document.createElement('button');
   button.classList.add('pure-button')
   button.classList.add('pure-button-primary')
   button.onclick = buttonClick;
 
-  const icon = document.createElement("i");
+  const icon = document.createElement('i');
   icon.classList.add('bi');
   icon.classList.add(buttonIcon);
 
@@ -46,11 +46,11 @@ export function tableAddCellButton(row, cellIndex, buttonText, buttonIcon, butto
 
   button.innerHTML += buttonText
 
-  // const element = document.createElement("button");
+  // const element = document.createElement('button');
 
-  // element.setAttribute("href", url);
+  // element.setAttribute('href', url);
   // element.innerHTML = text;
-  // element.target = "_blank";
+  // element.target = '_blank';
   // element.onclick = (e) => {
   //   e.preventDefault();
   //   chrome.tabs.create({
@@ -66,7 +66,7 @@ export function tableAddCellButton(row, cellIndex, buttonText, buttonIcon, butto
 }
 
 export function tableEmpty(table) {
-  var rowsToDelete = table.querySelectorAll("tbody tr");
+  var rowsToDelete = table.querySelectorAll('tbody tr');
   [].slice.call(rowsToDelete).forEach(function(row) {
     row.remove()
   });

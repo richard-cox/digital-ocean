@@ -1,27 +1,27 @@
-import { clearCache, deleteSshKey, doUrl, getNeatSshUsageInfo, getNeatUsageInfo } from '../scripts/do.js';
+import { clearCache, deleteSshKey, doUrl, getDropletUsageTextSummary, getNeatSshUsageInfo, getNeatUsageInfo } from '../scripts/do.js';
 import { tableAddCell, tableAddCellButton, tableAddCellLink, tableEmpty } from '../scripts/table-helpers.js';
 import { pureShowElement, pureEnableElement } from '../scripts/pure-helper.js';
 import { outputStoreState, storageActivitiesName, storageDropletsName, storageGetActivities, storageGetDroplets, storageGetResult, storageResult } from '../scripts/store.js';
 import { changeTabKeepContext, copyTextToClipboard } from '../scripts/helpers.js';
 
-const buttonDisplayResults = document.getElementById("displayResults");
-const buttonDownloadResults  = document.getElementById("downloadResults");
-const buttonShowCreator = document.getElementById("showCreator");
-const buttonClearCache = document.getElementById("clearCache");
-const buttonGoToDroplets = document.getElementById("goToDroplets");
-const buttonGoToSshKeys = document.getElementById("goToSshKeys");
+const buttonDisplayResults = document.getElementById('displayResults');
+const buttonSlackResults  = document.getElementById('slackResults');
+const buttonShowCreator = document.getElementById('showCreator');
+const buttonClearCache = document.getElementById('clearCache');
+const buttonGoToDroplets = document.getElementById('goToDroplets');
+const buttonGoToSshKeys = document.getElementById('goToSshKeys');
 
-const menuDroplets = document.getElementById("menuDroplets");
-const menusSupplementPage = document.getElementById("menusSupplementPage");
+const menuDroplets = document.getElementById('menuDroplets');
+const menusSupplementPage = document.getElementById('menusSupplementPage');
 
-const validatePage = document.getElementById("validate-page");
-const invalidatePage = document.getElementById("invalidate-page");
+const validatePage = document.getElementById('validate-page');
+const invalidatePage = document.getElementById('invalidate-page');
 
-const sectionReport = document.getElementById("sectionReport");
-const sectionSshKeysPage = document.getElementById("sectionSshKeysPage");
+const sectionReport = document.getElementById('sectionReport');
+const sectionSshKeysPage = document.getElementById('sectionSshKeysPage');
 
-const buttonDisplayResultsIcon = document.getElementById("displayResultsIcon");
-const buttonDownloadResultsIcon = document.getElementById("downloadIcon");
+const buttonDisplayResultsIcon = document.getElementById('displayResultsIcon');
+const buttonSlackResultsIcon = document.getElementById('slackResultsIcon');
 
 const resultsTable = document.getElementById('results-table');
 const summaryTable = document.getElementById('summary-table');
@@ -83,10 +83,10 @@ async function displayDroplets(droplets) {
     const row = resultsTable.getElementsByTagName('tbody')[0].insertRow(-1);
 
     if (d.isNaughty) {
-      row.classList.add("pure-table-naughty");
+      row.classList.add('pure-table-naughty');
       summary.naughty++;
     } else if (d.isNice) {
-      row.classList.add("pure-table-nice");
+      row.classList.add('pure-table-nice');
       summary.nice++;
     } else  {
       summary.other++;
@@ -103,7 +103,7 @@ async function displayDroplets(droplets) {
 
   const summaryRow = summaryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   const dropletSummaryCell = summaryRow.insertCell(0);
-  dropletSummaryCell.innerHTML = `<span class="nice">${summary.nice}</span>/<span>${summary.other}</span>/<span class="naughty">${summary.naughty}</span>`
+  dropletSummaryCell.innerHTML = `<span class='nice'>${summary.nice}</span>/<span>${summary.other}</span>/<span class='naughty'>${summary.naughty}</span>`
 
   tableAddCell(summaryRow, 1, `$${summary.monthlyRate.toFixed(2)}`);
   tableAddCell(summaryRow, 2, `$${summary.cost.toFixed(2)}`);
@@ -122,7 +122,7 @@ async function displaySshKeys(sshKeys) {
     const row = sshKeyTable.getElementsByTagName('tbody')[0].insertRow(-1);
 
     if (s.dropletId) {
-      row.classList.add("pure-table-nice");
+      row.classList.add('pure-table-nice');
       summary.withOwner++;
     } else  {
       summary.other++;
@@ -140,8 +140,8 @@ async function displaySshKeys(sshKeys) {
       const button = e.target;
       const i = button.getElementsByTagName('i')[0];
 
-      i.classList.add("bi-arrow-clockwise");
-      i.classList.remove("bi-trash");
+      i.classList.add('bi-arrow-clockwise');
+      i.classList.remove('bi-trash');
 
       try {
         await deleteSshKey(s.id);
@@ -149,19 +149,19 @@ async function displaySshKeys(sshKeys) {
         console.error('Failed to delete ssh key', s.id, e);
       }
 
-      i.classList.add("bi-trash");
-      i.classList.remove("bi-arrow-clockwise");
+      i.classList.add('bi-trash');
+      i.classList.remove('bi-arrow-clockwise');
     })
   });
 
   const summaryRow = summarySshKeyTable.getElementsByTagName('tbody')[0].insertRow(-1);
   const dropletSummaryCell = summaryRow.insertCell(0);
-  dropletSummaryCell.innerHTML = `<span class="nice">${summary.withOwner}</span>/<span>${summary.other}</span>`
+  dropletSummaryCell.innerHTML = `<span class='nice'>${summary.withOwner}</span>/<span>${summary.other}</span>`
 }
 
 function updateButtonState() {
   pureEnableElement(buttonClearCache, storageHasDroplets || storageHasActivities)
-  pureEnableElement(buttonDownloadResults, storageHasResult);
+  pureEnableElement(buttonSlackResults, storageHasResult);
   pureEnableElement(buttonShowCreator, storageHasResult);
 
   if (!generatingResults) {
@@ -200,62 +200,48 @@ async function initialise() {
 /*****************************
  * Menu
  *****************************/ 
-menuDroplets.addEventListener("click", async () => {
+menuDroplets.addEventListener('click', async () => {
   pureShowElement(sectionReport, true);
-  sectionReport.classList.add("pure-menu-selected");
+  sectionReport.classList.add('pure-menu-selected');
 
   pureShowElement(sectionSshKeysPage, false);
-  sectionReport.classList.remove("pure-menu-selected");
+  sectionReport.classList.remove('pure-menu-selected');
 })
 
-menusSupplementPage.addEventListener("click", async () => {
+menusSupplementPage.addEventListener('click', async () => {
   pureShowElement(sectionSshKeysPage, true);
-  sectionReport.classList.add("pure-menu-selected");
+  sectionReport.classList.add('pure-menu-selected');
 
   pureShowElement(sectionReport, false);
-  sectionReport.classList.remove("pure-menu-selected");
+  sectionReport.classList.remove('pure-menu-selected');
 })
 
 /*****************************
  * Buttons
  *****************************/ 
-buttonDisplayResults.addEventListener("click", async () => {
+buttonDisplayResults.addEventListener('click', async () => {
   await displayResults();
 });
 
-buttonDownloadResults.addEventListener("click", async () => {
-  const droplets = await getNeatUsageInfo();
-  const sshKeys = await getNeatSshUsageInfo(droplets); // TODO: RC Remove
+buttonSlackResults.addEventListener('click', async () => {
+  buttonSlackResultsIcon.classList.add('bi-clipboard-check');
+  buttonSlackResultsIcon.classList.remove('bi-clipboard');
 
-  const naughtyList = droplets.reduce((res, d) => {
-    if (!d.isNaughty) {
-      return res;
-    }
+  const naughtyList = await getDropletUsageTextSummary()
 
-    if (!res[d.userName]) {
-      res[d.userName] = 0;
-    }
-
-    res[d.userName]++
-
-    return res;
-  }, {})
-
-
-  const message = Object.keys(naughtyList) === 0 ? [
+  const message = naughtyList.length === 0 ? [
     `NONE! A pint of the landlord's finest to you all\n`
   ] : [
-    ...Object.entries(naughtyList).map(([userName, count]) => `${userName}: ${count}\n`)
+    ...naughtyList,
+    '\nPlease make sure to delete or update them',
   ]
 
   const blobArray = [
-    `\`\`\`\n`,
-    'This weeks DO droplet\'s naughty list...\n',
+    'This weeks DO stale droplet\'s list...\n\n',
     ...message,
-    `\`\`\`\n`,
   ]
 
-  const blob = new Blob(blobArray, {type: "text/plain"});
+  const blob = new Blob(blobArray, {type: 'text/plain'});
   // const url = URL.createObjectURL(blob);
   // chrome.downloads.download({
   //   url: url, // The object URL can be used as download URL
@@ -264,24 +250,21 @@ buttonDownloadResults.addEventListener("click", async () => {
   // });
 
   await blob.text().then(text => copyTextToClipboard(text))
-  
-  buttonDownloadResultsIcon.classList.add("bi-clipboard-check");
-  buttonDownloadResultsIcon.classList.remove("bi-clipboard");
 
   setTimeout(() => {
-    buttonDownloadResultsIcon.classList.add("bi-clipboard");
-    buttonDownloadResultsIcon.classList.remove("bi-clipboard-check");
+    buttonSlackResultsIcon.classList.add('bi-clipboard');
+    buttonSlackResultsIcon.classList.remove('bi-clipboard-check');
   }, 3000)
 
 });
 
-buttonClearCache.addEventListener("click", async () => {
+buttonClearCache.addEventListener('click', async () => {
   await clearCache();
   tableEmpty(resultsTable);
   tableEmpty(summaryTable);
 });
 
-buttonShowCreator.addEventListener("click", async () => {
+buttonShowCreator.addEventListener('click', async () => {
   const dResources = await getNeatUsageInfo();
 
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -290,11 +273,11 @@ buttonShowCreator.addEventListener("click", async () => {
   });
 });
 
-buttonGoToDroplets.addEventListener("click", () => {
+buttonGoToDroplets.addEventListener('click', () => {
   changeTabKeepContext(`${doUrl}/droplets`);
 });
 
-buttonGoToSshKeys.addEventListener("click", () => {
+buttonGoToSshKeys.addEventListener('click', () => {
   changeTabKeepContext(`${doUrl}/account/security`);
 });
 
@@ -320,14 +303,14 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 await initialise();
 
 // TODO: RC Fetch the x-csrf-token to be used in DELETE requests (not sure this is possible....)
-// "permissions": ["activeTab", "scripting", "storage", "downloads", "webRequest"]
+// 'permissions': ['activeTab', 'scripting', 'storage', 'downloads', 'webRequest']
 // onBeforeSendHeaders
 // onBeforeRequest
 // onSendHeaders
 // chrome.webRequest.onSendHeaders.addListener((details) => {
 //   console.warn(details);
 // }, {
-//   // urls: ["https://cloud.digitalocean.com/*"]
-//   urls: ["<all_urls>"]
+//   // urls: ['https://cloud.digitalocean.com/*']
+//   urls: ['<all_urls>']
 // });
 // // , filter, opt_extraInfoSpec
