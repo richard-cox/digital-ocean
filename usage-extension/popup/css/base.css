@@ -16,11 +16,7 @@ body, .root {
 }
 
 .section {
-  margin-bottom: 10px;
-}
-
-.section > .top-buttons {
-  margin-top: 10px;
+  padding: 10px;
 }
 
 .flex-centre {

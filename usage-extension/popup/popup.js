@@ -1,9 +1,10 @@
-import { doUrl, getDropletUsageTextSummary, doGetSshKeyInfoWithAge, doGetDropletsInfoWithAge } from '../scripts/do/do.js';
+import { doUrl, doGetDropletUsageTextSummary, doGetSshKeyInfoWithAge, doGetDropletsInfoWithAge } from '../scripts/do/do.js';
 import { tableAddCell, tableAddCellButton, tableAddCellLink, tableEmpty } from '../scripts/utils/table.js';
 import { pureShowElement, pureEnableElement } from '../scripts/utils/pure.js';
 import { storageClear, outputStoreState, storageActivitiesName, storageDropletsName, storageGetActivities, storageGetDroplets, storageGetResult, storageResult } from '../scripts/do/store.js';
 import { copyTextToClipboard } from '../scripts/utils/utils.js';
 import { changeTabKeepContext } from '../scripts/utils/chrome-extension.js';
+import { doDeleteSshKey } from '../scripts/do/do-requests.js';
 
 // TODO: RC better separation, everything is properly mixed up
 
@@ -32,20 +33,22 @@ async function displayAllResults() {
   buttonFetchResourcesIcon.classList.add('bi-arrow-clockwise')
   buttonFetchResourcesIcon.classList.remove('bi-newspaper')
 
-  const resultsRoot = document.getElementById('results-root');
+  const dropletsRoot = document.getElementById('droplets-root');
+  const sshKeysRoot = document.getElementById('sshkeys-root');
 
   try {
     const droplets = await doGetDropletsInfoWithAge();
     await displayDroplets(droplets);
 
     const sshKeys = await doGetSshKeyInfoWithAge(droplets);
-    await displaySshKeys(sshKeys)
+    await displaySshKeys(sshKeys);
 
   } catch (err) {
     console.error('Failed to get usage: ', err);
   }
 
-  pureShowElement(resultsRoot, true);
+  pureShowElement(dropletsRoot, true);
+  pureShowElement(sshKeysRoot, true);
 
   generatingResults = false;
 
@@ -211,6 +214,11 @@ buttonClearCache.addEventListener('click', async () => {
   await storageClear();
   tableEmpty(tableDroplets);
   tableEmpty(tableDropletSummary);
+  tableEmpty(tableSshKey);
+  tableEmpty(tableSummarySshKey);
+
+  pureShowElement(dropletsRoot, false);
+  pureShowElement(sshKeysRoot, false);
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -256,7 +264,7 @@ buttonSlackResults.addEventListener('click', async () => {
   buttonSlackResultsIcon.classList.add('bi-clipboard-check');
   buttonSlackResultsIcon.classList.remove('bi-clipboard');
 
-  const naughtyList = await getDropletUsageTextSummary()
+  const naughtyList = await doGetDropletUsageTextSummary()
 
   const message = naughtyList.length === 0 ? [
     `NONE! A pint of the landlord's finest to you all\n`

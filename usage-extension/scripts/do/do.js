@@ -1,4 +1,5 @@
 import { monthDiff } from '../utils/utils.js';
+import { doGetActivity, doGetDroplets, doGetSshKeys } from './do-requests.js';
 import { storageGetDroplets, storageGetResult, storageGetSshKeys, storageSetDroplets, storageSetResult, storageSetSshKeys } from './store.js';
 
 
@@ -149,7 +150,7 @@ const findActivity = async (droplet, activityRes = null) => {
 /**
  * Provide summary text for droplet usage
  */
-export const getDropletUsageTextSummary = async () => {
+export const doGetDropletUsageTextSummary = async () => {
   const droplets = await doGetDropletsInfoWithAge();
 
   const naughtyList = droplets.reduce((res, d) => {
@@ -211,7 +212,7 @@ export const doGetSshKeyInfoWithAge = async(supplementedDroplets) => {
 const getSshKeyInfo = async() => {
   let sshKeys = await storageGetSshKeys();
   if (!sshKeys) {
-    sshKeys = await doGetSshKeys(); //mockDroplets(); //
+    sshKeys = await doGetSshKeys();
     storageSetSshKeys(sshKeys);
   }
   console.info('getSshUsageInfo', 'ssh keys', sshKeys);

@@ -4,6 +4,7 @@
 
 .pure-table, .pure-menu {
   margin-top: 10px;
+  width: 100%;
 }
 
 .pure-table-nice td, .nice {
@@ -12,10 +13,6 @@
 
 .pure-table-naughty td, .naughty {
   background-color: #ffe5e5;
-}
-
-.pure-u-22-24 .pure-table:last-of-type {
-  margin-bottom: 10px;
 }
 
 .pure-menu-list {
@@ -33,4 +30,8 @@
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
+}
+
+.pure-g {
+  justify-content: center;
 }
