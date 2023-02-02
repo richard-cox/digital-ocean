@@ -30,13 +30,16 @@ export function tableAddCellLink(row, cellIndex, text, url) {
   return cell;
 }
 
-export function tableAddCellButton(row, cellIndex, buttonText, buttonIcon, buttonClick) {
+export function tableAddCellButton(row, cellIndex, buttonText, buttonIcon, buttonClick, disabled) {
   const cell = row.insertCell(cellIndex);
 
   const button = document.createElement('button');
   button.classList.add('pure-button')
   button.classList.add('pure-button-primary')
   button.onclick = buttonClick;
+  if (disabled) {
+    button.setAttribute('disabled', true)
+  }
 
   const icon = document.createElement('i');
   icon.classList.add('bi');

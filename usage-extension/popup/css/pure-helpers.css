@@ -2,7 +2,7 @@
   margin-right: 10px;
 }
 
-.pure-table {
+.pure-table, .pure-menu {
   margin-top: 10px;
 }
 
@@ -12,4 +12,25 @@
 
 .pure-table-naughty td, .naughty {
   background-color: #ffe5e5;
+}
+
+.pure-u-22-24 .pure-table:last-of-type {
+  margin-bottom: 10px;
+}
+
+.pure-menu-list {
+  border-top: 1px solid #a3a5a7;
+  border-left: 1px solid #a3a5a7;
+  border-right: 1px solid #a3a5a7;
+
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.section {
+  border: 1px solid #a3a5a7;
+  
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
 }

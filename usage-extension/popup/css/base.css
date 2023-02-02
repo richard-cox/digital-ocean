@@ -11,10 +11,6 @@ body, .root {
   min-height: 200px;
 }
 
-.section, .top-buttons {
-  min-width: 780px;
-}
-
 .top-buttons {
   display: flex;
 }
@@ -34,4 +30,8 @@ body, .root {
 
 .flex-column {
   flex-direction: column;
+}
+
+.valid-page {
+  margin: 0 5px 5px 5px;
 }

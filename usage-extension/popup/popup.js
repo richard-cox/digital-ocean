@@ -142,7 +142,7 @@ async function displaySshKeys(sshKeys) {
 
       i.classList.add('bi-trash');
       i.classList.remove('bi-arrow-clockwise');
-    })
+    }, true)
   });
 
   const summaryRow = tableSummarySshKey.getElementsByTagName('tbody')[0].insertRow(-1);
@@ -189,18 +189,18 @@ async function initialise() {
 
 menuDroplets.addEventListener('click', async () => {
   pureShowElement(sectionDroplets, true);
-  sectionDroplets.classList.add('pure-menu-selected');
+  menuDroplets.classList.add('pure-menu-selected');
 
   pureShowElement(sectionSshKeysPage, false);
-  sectionDroplets.classList.remove('pure-menu-selected');
+  menusSshPage.classList.remove('pure-menu-selected');
 })
 
 menusSshPage.addEventListener('click', async () => {
   pureShowElement(sectionSshKeysPage, true);
-  sectionDroplets.classList.add('pure-menu-selected');
+  menusSshPage.classList.add('pure-menu-selected');
 
   pureShowElement(sectionDroplets, false);
-  sectionDroplets.classList.remove('pure-menu-selected');
+  menuDroplets.classList.remove('pure-menu-selected');
 })
 
 buttonFetchResources.addEventListener('click', async () => {
