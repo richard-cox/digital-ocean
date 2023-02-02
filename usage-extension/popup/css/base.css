@@ -1,0 +1,37 @@
+div {
+  font-size: 16px;
+}
+
+table {
+  font-size: 14px;
+}
+
+body, .root {
+  min-width: 780px;
+  min-height: 200px;
+}
+
+.section, .top-buttons {
+  min-width: 780px;
+}
+
+.top-buttons {
+  display: flex;
+}
+
+.section {
+  margin-bottom: 10px;
+}
+
+.section > .top-buttons {
+  margin-top: 10px;
+}
+
+.flex-centre {
+  display: flex;
+  justify-content: center;
+}
+
+.flex-column {
+  flex-direction: column;
+}

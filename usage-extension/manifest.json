@@ -7,10 +7,7 @@
     "32": "images/favicon.png",
     "48": "images/favicon.png"
   },
-  "background": {
-    "service_worker": "background-popup.js",
-    "type": "module"
-  },
+
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
@@ -20,7 +17,7 @@
   "content_scripts": [{
     "matches": ["https://cloud.digitalocean.com/*"],
     "run_at": "document_end",
-    "js":      ["scripts/droplet-page.js"]
+    "js":      ["content_scripts/droplet-page.js"]
 }],
   "permissions": ["activeTab", "scripting", "storage", "downloads"]
 }

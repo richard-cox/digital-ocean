@@ -3,7 +3,9 @@
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/bootstrap-helpers.css">
+    <link rel="stylesheet" href="css/pure-helpers.css">
     <!-- https://icons.getbootstrap.com/#icons -->
   </head>
   <body>
@@ -12,12 +14,12 @@
         <div class="pure-u-1-1 flex-centre"> <h2>Digital Ocean Usage</h2> </div>
       </div>
 
-      <div id="validate-page" hidden>
+      <div id="valid-page" hidden>
         <div class="pure-g top-buttons">
           <div class="pure-u-1-5"> </div>
           <div class="pure-u-3-5 flex-centre">
-              <button class="pure-button pure-button-primary" id="displayResults">
-                <i class="bi bi-newspaper" id="displayResultsIcon"></i>Fetch Resources
+              <button class="pure-button pure-button-primary" id="fetchResources">
+                <i class="bi bi-newspaper" id="fetchResourcesIcon"></i>Fetch Resources
               </button>
               <button class="pure-button pure-button-primary" id="clearCache">
                 <i class="bi bi-trash"></i>Empty Cache
@@ -31,17 +33,17 @@
               <li class="pure-menu-item pure-menu-selected" id="menuDroplets">
                   <a href="#" class="pure-menu-link">Droplets</a>
               </li>
-              <li class="pure-menu-item" id="menusSupplementPage">
+              <li class="pure-menu-item" id="menusSshPage">
                   <a href="#" class="pure-menu-link">SSH Keys</a>
               </li>
           </ul>
         </div>
   
-        <div id="sectionReport" class="section">
+        <div id="sectionDroplets" class="section">
           <div class="pure-g top-buttons">
             <div class="pure-u-1-5"> </div>
             <div class="pure-u-3-5 flex-centre">
-                <button class="pure-button pure-button-primary" id="showCreator">
+                <button class="pure-button pure-button-primary" id="supDropletPage">
                   <i class="bi bi-box-arrow-in-down-right"></i>Supplement Droplet's Page
                 </button>
                 <button class="pure-button pure-button-primary" id="slackResults">
@@ -57,7 +59,7 @@
           <div class="pure-g" id="results-root" hidden>
             <div class="pure-u-1-24"> </div>
             <div class="pure-u-22-24 flex-centre flex-column">
-              <table class="pure-table pure-table-horizontal summary-table" id="summary-table">
+              <table class="pure-table pure-table-horizontal" id="droplet-summary-table">
                 <thead>
                     <tr>
                         <th>Running Droplets</th>
@@ -69,7 +71,7 @@
                 </tbody>
               </table>
 
-              <table class="pure-table pure-table-horizontal results-table" id="results-table">
+              <table class="pure-table pure-table-horizontal" id="droplets-table">
                 <thead>
                     <tr>
                         <th>Droplet</th>
@@ -101,7 +103,7 @@
           <div class="pure-g">
             <div class="pure-u-1-24"> </div>
             <div class="pure-u-22-24 flex-centre flex-column">
-              <table class="pure-table pure-table-horizontal sshkey-summary-table" id="sshkey-summary-table">
+              <table class="pure-table pure-table-horizontal" id="sshkey-summary-table">
                 <thead>
                     <tr>
                         <th>Summary</th>
@@ -111,7 +113,7 @@
                 </tbody>
               </table>
 
-              <table class="pure-table pure-table-horizontal sshkey-table" id="sshkey-table">
+              <table class="pure-table pure-table-horizontal" id="sshkey-table">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -129,7 +131,7 @@
         </div>
       </div>
 
-      <div id="invalidate-page" class="flex-centre" style="padding-top: 40px;" hidden>
+      <div id="invalid-page" class="flex-centre" style="padding-top: 40px;" hidden>
           Extension must be run from a Digital Ocean tab
       </div>
 

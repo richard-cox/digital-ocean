@@ -1,4 +1,4 @@
-import { openTabKeepContext } from './helpers.js';
+import { openTabKeepContext } from './chrome-extension.js';
 
 export function tableAddCell(row, cellIndex, text, url = null) {
   const cell = row.insertCell(cellIndex)
@@ -45,20 +45,6 @@ export function tableAddCellButton(row, cellIndex, buttonText, buttonIcon, butto
   button.appendChild(icon);
 
   button.innerHTML += buttonText
-
-  // const element = document.createElement('button');
-
-  // element.setAttribute('href', url);
-  // element.innerHTML = text;
-  // element.target = '_blank';
-  // element.onclick = (e) => {
-  //   e.preventDefault();
-  //   chrome.tabs.create({
-  //     url,
-  //     active: false,
-  //    });
-  //   return false;
-  // }
 
   cell.appendChild(button);
 

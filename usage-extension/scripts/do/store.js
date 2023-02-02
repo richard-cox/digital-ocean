@@ -3,6 +3,13 @@ export const storageActivitiesName = 'activities';
 export const storageSshKeysName = 'activities';
 export const storageResult = 'result';
 
+export const storageClear = async() => {
+  await storageSetDroplets(null);
+  await storageSetActivities(null);
+  await storageSetResult(null);
+  await storageSetSshKeys(null);
+}
+
 export async function storageGetDroplets() {
   return chrome.storage.local.get([storageDropletsName]).then(res => {
     const val = res[storageDropletsName];

@@ -6,7 +6,24 @@ Create a chrome extension (compatible with Brave) that makes API requests to the
 
 - Results can take a while to fetch, so are cached in local storage. To fetch new results results can be cleared with the button in the popup
 
+correlating droplet and user done via project acitibity. created idea to get straight from droplet. // TODO: RC
+
 This will be able to correlate DO droplets and their creator
+
+### TODO / FIX List
+- Delete SSH Key does not currently work
+  - DO block mutating HTTP requests lacking CSRF token. Need to somehow scrape this from other calls?
+- Linking the SSH key to an owner only possible for Rancher created keys
+  - Rancher created keys are named the same as the droplet it creates 
+- Flag stale DO_NOT_DELETE droplets
+  - Only droplets without DO_NO_DELETE tag over 12 days old are flagged  
+  - Need to get activity of DO_NOT_DELETE tagged droplets and warn on those that are unused
+- Automatically apply droplet info to DO droplets page if we have them in the cache. 
+  - Need to dynamically load content script to make use of module related syntax
+- Convert to modern framework (instead of vanilla JS/HTML/CSS)
+  - This would also resolve structuring issues (see popup.js, general module use, etc)
+- DARK MODE!!  
+
 
 ## Loading the plugin
 
@@ -33,10 +50,4 @@ This will be able to correlate DO droplets and their creator
 - Project Id is hardcoded (we could go out and fetch it via /api/v1/fleets)
 - Cost only includes droplet compute cost (size of vm), rather than floating ip, backup, etc
 - "matches
-
-
-NO supplement data without button press
-// TODO: RC active droplet (if do not delete in use)
-// TODO: RC ssh keys
-// TODO: RC dark mode
 

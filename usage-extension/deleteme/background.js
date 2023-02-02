@@ -1,4 +1,4 @@
-import { doUrl, getUsageInfo } from '../scripts/do.js';
+import { doUrl, getUsageInfo } from '../scripts/do/do.js';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.action.setBadgeText({

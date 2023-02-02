@@ -1,0 +1,15 @@
+.pure-button {
+  margin-right: 10px;
+}
+
+.pure-table {
+  margin-top: 10px;
+}
+
+.pure-table-nice td, .nice {
+  background-color: #e5ffe7;
+}
+
+.pure-table-naughty td, .naughty {
+  background-color: #ffe5e5;
+}

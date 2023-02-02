@@ -1,24 +1,23 @@
-import { monthDiff } from './helpers.js';
-import { storageGetDroplets, storageGetResult, storageGetSshKeys, storageSetActivities, storageSetDroplets, storageSetResult, storageSetSshKeys } from './store.js';
+import { monthDiff } from '../utils/utils.js';
+import { storageGetDroplets, storageGetResult, storageGetSshKeys, storageSetDroplets, storageSetResult, storageSetSshKeys } from './store.js';
 
 
-const containerEcosystemId = '7708d48d-9571-45a7-ab35-34da2d95fe99'; // This is gonna be static, no need to make a request to find
 export const doUrl = 'https://cloud.digitalocean.com';
-
-export const clearCache  = async() => {
-  await storageSetDroplets(null);
-  await storageSetActivities(null);
-  await storageSetResult(null);
-  await storageSetSshKeys(null);
-}
 
 function getDisplayName(name) {
   // return obfuscateText(name);
   return name;
 }
 
-export const getNeatUsageInfo = async() => {
-  const droplets = await getUsageInfo();
+/*****************************
+ * Droplets
+ *****************************/ 
+
+/**
+ * Fetch droplet information, supplemented with user and current time related properties
+ */
+export const doGetDropletsInfoWithAge = async() => {
+  const droplets = await getDropletsInfo();
   const now = new Date();
 
   return droplets.map(d => {
@@ -53,53 +52,14 @@ export const getNeatUsageInfo = async() => {
   })
 }
 
-export const getNeatSshUsageInfo = async(supplementedDroplets) => {
-  const sshKeys = await getSshUsageInfo();
-  const now = new Date();
-
-  return sshKeys.ssh_keys.map(s => {
-
-    // Everything time/age based needs to be done on-demand rather than stuck in store
-    const then = new Date(s.created_at);
-
-    // General age things
-    const hours_old = Math.floor((now - then) / 1000 / 3600);
-    const daysMinusHours = Math.floor(hours_old / 24);
-    const hoursMinusDays = hours_old % 24;
-
-    const d = supplementedDroplets.find(droplet => droplet.dropletName === s.name);
-
-    return {
-      id: s.id,
-      name: s.name,
-      dropletName: d ? getDisplayName(d.dropletName) : '',
-      dropletId: d?.dropletId,
-      dropletUserName: d ? getDisplayName(d.userName) : '',
-      created: `${then.toLocaleTimeString()} ${then.toLocaleDateString()}`,
-      age: `${daysMinusHours} days, ${hoursMinusDays} hours`,
-    }
-  })
-}
-
-export const deleteSshKey = async(keyId) => {
-  await deleteDo(`${doUrl}/api/v1/ssh_keys/${keyId}`);
-}
-
-export const getSshUsageInfo = async() => {
-  let sshKeys = await storageGetSshKeys();
-  if (!sshKeys) {
-    sshKeys = await getSshKeys(); //mockDroplets(); //
-    storageSetSshKeys(sshKeys);
-  }
-  console.info('getSshUsageInfo', 'ssh keys', sshKeys);
-  return sshKeys;
-}
-
-export const getUsageInfo = async() => {
+/**
+ * Fetch droplets and supplement them user creator info
+ */
+const getDropletsInfo = async() => {
   let droplets = await storageGetDroplets();
 
   if (!droplets) {
-    droplets = await getDroplets(); //mockDroplets(); //
+    droplets = await doGetDroplets(); //mockDroplets(); //
     storageSetDroplets(droplets);
   }
   console.info('getUsageInfo', 'droplets', droplets);
@@ -114,18 +74,9 @@ export const getUsageInfo = async() => {
   return supplementedDroplets;
 }
 
-export const getDroplets = async(page = 1) => {
-  const resJson = await getDo(`${doUrl}/api/v1/droplets?page=${page}&sort=created_at&sort_direction=desc&include_failed=true`);
-  if (resJson.meta.pagination.next_page) {
-    const nextPageRes = await getDroplets(++page);
-    resJson.droplets = [
-      ...resJson.droplets,
-      ...nextPageRes.droplets
-    ]
-  }
-  return resJson;
-}
-
+/**
+ * Supplement droplet with user creator info
+ */
 const supplementDroplets = async (droplets) => {
   let activityRes;
 
@@ -150,10 +101,9 @@ const supplementDroplets = async (droplets) => {
   return droplets; // mutating state naughtyness
 }
 
-const getActivity = async (page = 1) => {
-  return await getDo(`${doUrl}/api/v1/fleets/${containerEcosystemId}/activity_history?sort=date&sort_direction=asc&page=${page}&per_page=2000`);
-}
-
+/**
+ * Find an activity (containing user) related to the given droplet
+ */
 const findActivity = async (droplet, activityRes = null) => {
   if (!activityRes) {
     activityRes = {
@@ -186,7 +136,7 @@ const findActivity = async (droplet, activityRes = null) => {
   }
 
   let newPage = page+1;
-  const newPageResults = await getActivity(newPage);
+  const newPageResults = await doGetActivity(newPage);
   return await findActivity(droplet, {
     currentPage: newPageResults.activities,
     page: newPage,
@@ -196,36 +146,11 @@ const findActivity = async (droplet, activityRes = null) => {
 
 }
 
-export const getSshKeys = async(page = 1) => {
-  const resJson = await getDo(`${doUrl}/api/v1/ssh_keys?page=${page}&sort=created_at&sort_direction=desc&per_page=2000`);
-  if (resJson.meta.pagination.next_page) {
-    const nextPageRes = await getSshKeys(++page);
-    resJson.ssh_keys = [
-      ...resJson.ssh_keys,
-      ...nextPageRes.ssh_keys
-    ]
-  }
-  return resJson;
-}
-
-const getDo = async(url) => {
-  const res = await fetch(url, {
-    'headers': {
-      'accept': 'application/json',
-    },
-  });
-  return await res.json();
-}
-
-const deleteDo = async(url) => {
-  return await fetch(url, {
-    'method': 'DELETE'
-  });
-}
-
+/**
+ * Provide summary text for droplet usage
+ */
 export const getDropletUsageTextSummary = async () => {
-  const droplets = await getNeatUsageInfo();
-  const sshKeys = await getNeatSshUsageInfo(droplets); // TODO: RC Remove
+  const droplets = await doGetDropletsInfoWithAge();
 
   const naughtyList = droplets.reduce((res, d) => {
     if (!d.isNaughty) {
@@ -244,3 +169,52 @@ export const getDropletUsageTextSummary = async () => {
   return Object.entries(naughtyList)
     .map(([userName, machines]) => `${userName}: ${machines.join(',')} \n`);
 }
+
+
+/*****************************
+ * SSH Keys
+ *****************************/ 
+
+/**
+ * Fetch ssh key information, supplemented with user and current time related properties
+ */
+export const doGetSshKeyInfoWithAge = async(supplementedDroplets) => {
+  const sshKeys = await getSshKeyInfo();
+  const now = new Date();
+
+  return sshKeys.ssh_keys.map(s => {
+
+    // Everything time/age based needs to be done on-demand rather than stuck in store
+    const then = new Date(s.created_at);
+
+    // General age things
+    const hours_old = Math.floor((now - then) / 1000 / 3600);
+    const daysMinusHours = Math.floor(hours_old / 24);
+    const hoursMinusDays = hours_old % 24;
+
+    // Find the user by linking the name of the key to the name of the droplet
+    // This only works for rancher created keys
+    const d = supplementedDroplets.find(droplet => droplet.dropletName === s.name);
+
+    return {
+      id: s.id,
+      name: s.name,
+      dropletName: d ? getDisplayName(d.dropletName) : '',
+      dropletId: d?.dropletId,
+      dropletUserName: d ? getDisplayName(d.userName) : '',
+      created: `${then.toLocaleTimeString()} ${then.toLocaleDateString()}`,
+      age: `${daysMinusHours} days, ${hoursMinusDays} hours`,
+    }
+  })
+}
+
+const getSshKeyInfo = async() => {
+  let sshKeys = await storageGetSshKeys();
+  if (!sshKeys) {
+    sshKeys = await doGetSshKeys(); //mockDroplets(); //
+    storageSetSshKeys(sshKeys);
+  }
+  console.info('getSshUsageInfo', 'ssh keys', sshKeys);
+  return sshKeys;
+}
+

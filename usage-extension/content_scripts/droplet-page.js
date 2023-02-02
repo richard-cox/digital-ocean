@@ -1,6 +1,3 @@
-// import { getNeatUsageInfo } from './do';
-// import { storageGetResult } from './store';
-
 function supplement(dResources) {
   const dElements = document.querySelectorAll('[data-value]');
 
@@ -26,6 +23,7 @@ function supplement(dResources) {
   })
 }
 
+// TODO: RC Automatically apply droplet info... if we have the cache
 // Requires module support (for imports). might be possible with dynamically loaded content_script 
 // async function initialise() {
 //   const storageHasResult = await storageGetResult();
