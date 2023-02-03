@@ -92,7 +92,7 @@ async function displayDroplets(droplets) {
     tableAddCellLink(row, 0, d.dropletName, `${doUrl}/droplets/${d.dropletId}`);
     tableAddCell(row, 1, d.userName);
     tableAddCell(row, 2, `Date: ${d.created}<br>Age: ${d.age}`);
-    tableAddCell(row, 3, `$${d.totalCost.toFixed(2)}`);
+    tableAddCell(row, 3, `Monthly: $${d.monthlyRate}<br>Total: $${d.totalCost.toFixed(2)}`);
   });
 
   const summaryRow = tableDropletSummary.getElementsByTagName('tbody')[0].insertRow(-1);

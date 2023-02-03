@@ -2,6 +2,13 @@
 
 Display droplet usage info on a per user basis. Automate the process and integrate with Slack.
 
+This will help us keep our DO bill down to enable continued use.
+
+> Adding identifiable info (name, initials, first pets name, etc) to resource names helps a lot
+> 1. Adding to a Droplet name when creating on DO website
+> 2. Adding to an RKE2 Cluster name
+> 3. Adding to an RKE1 node pool name (rke1 droplets are prefixed with this and not cluster name)
+
 
 ## Approach 1
 Beef up initial work done over at https://github.com/rancher/dashboard-bot to include `DO blame` and slackbot integration

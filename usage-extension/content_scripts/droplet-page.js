@@ -7,7 +7,9 @@ function supplement(dResources) {
     if (d) {
       const imageNameElement = dE.getElementsByClassName('Resource-description')[0];
       
-      imageNameElement.innerText = d.userName + ' / ' + imageNameElement.innerText;
+      const owner = d.userName;
+      const cost = `Monthly: $${d.monthlyRate}, Total: $${d.totalCost.toFixed(2)}`
+      imageNameElement.innerText = owner + ' / ' + cost + ' / ' + imageNameElement.innerText;
 
       let row = dE.parentElement; // This varies given content, so iterate up the chain
       while (row.localName !== 'tr') {
