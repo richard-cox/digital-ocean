@@ -6,10 +6,10 @@ Create a chrome extension (compatible with Brave) that makes API requests to the
 
 - Fetches Droplet, Project Activity and SSH keys resources via `v1` endpoint using same auth as DO site
 - Caches resources for ease of use
-- Correlates Droplet and SSH Keys with User (as much as possible)
+- Correlates Droplet / SSH Keys with User (as much as possible)
 - Calculates Droplet cost
 - Resulting droplet and ssh key results show in extension popup
-- Some parts of Droplet results can be amended to DO Droplets Page
+- Droplet results can be amended to DO Droplets Page
 
 ## TODO / FIX List
 
@@ -27,6 +27,7 @@ Create a chrome extension (compatible with Brave) that makes API requests to the
 - Automatically apply droplet info to DO droplets page. 
   - Only if we have info cached
   - Need to dynamically load content script to make use of module related syntax
+  - This is possible (see `service-worker` branch), but never successfully finds element to add
 - Project Id is hardcoded 
   - (we could go out and fetch it via /api/v1/fleets)
 - Convert to modern framework (instead of vanilla JS/HTML/CSS)

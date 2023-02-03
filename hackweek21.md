@@ -1,13 +1,13 @@
 # Determine Usage of Digital Ocean Droplets
 
-Display droplet usage info on a per user basis. Automate the process and integrate with Slack.
+Display droplet usage info on a per user basis, determine stale droplets. Automate the process and integrate with Slack.
 
 This will help us keep our DO bill down to enable continued use.
 
-> Adding identifiable info (name, initials, first pets name, etc) to resource names helps a lot
-> 1. Adding to a Droplet name when creating on DO website
-> 2. Adding to an RKE2 Cluster name
-> 3. Adding to an RKE1 node pool name (rke1 droplets are prefixed with this and not cluster name)
+> When creating DO resources add identifiable info (name, initials, first pets name, etc) to name
+> 1. DO Website - Droplet name
+> 2. Rancher - RKE2 Cluster name
+> 3. Rancher - RKE1 node pool name (rke1 droplets are prefixed with this and not cluster name)
 
 
 ## Approach 1
