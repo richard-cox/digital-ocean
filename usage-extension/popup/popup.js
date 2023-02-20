@@ -5,6 +5,7 @@ import { storageClear, outputStoreState, storageActivitiesName, storageDropletsN
 import { copyTextToClipboard } from '../scripts/utils/utils.js';
 import { changeTabKeepContext } from '../scripts/utils/chrome-extension.js';
 import { doDeleteSshKey } from '../scripts/do/do-requests.js';
+import Table from '../scripts/utils/easy-table.js';
 
 // TODO: RC better separation, everything is properly mixed up
 
@@ -264,19 +265,58 @@ buttonSlackResults.addEventListener('click', async () => {
   buttonSlackResultsIcon.classList.add('bi-clipboard-check');
   buttonSlackResultsIcon.classList.remove('bi-clipboard');
 
-  const naughtyList = await doGetDropletUsageTextSummary()
+  const { naughty: naughtyList, nice: niceList, team: teamList } = await doGetDropletUsageTextSummary()
 
-  const message = naughtyList.length === 0 ? [
+  const naughtyMessage = naughtyList.length === 0 ? [
     `NONE! A pint of the landlord's finest to you all\n`
   ] : [
     ...naughtyList,
     '\nPlease make sure to delete or update them',
   ]
 
+  const niceTable = new Table;
+  niceList.forEach(function(e) {
+    niceTable.cell('User', e.userName)
+    niceTable.cell('Droplets', e.count)
+    niceTable.cell('Monthly Cost (USD)', e.running)
+    niceTable.cell('Total Cost (USD)', e.total)
+    niceTable.newRow()
+  })
+
+  const niceMessage = niceList.length === 0 ? [
+    `NONE! \n`
+  ] : niceTable.toString()
+
+  const teamTable = new Table;
+  teamList.forEach(function(e) {
+    teamTable.cell('User', e.userName)
+    teamTable.cell('Droplets', e.count)
+    teamTable.cell('Monthly Cost (USD)', e.running)
+    teamTable.cell('Total Cost (USD)', e.total)
+    teamTable.newRow()
+  })
+  
+  const teamMessage = teamList.length === 0 ? [
+    `NONE! \n`
+  ] : teamTable.toString()
+
+  console.warn(niceList, ...niceList.sort((a, b) => a.running > b.running));
+
   const blobArray = [
-    'This weeks DO stale droplet\'s list...\n\n',
-    ...message,
+    '```',
+    'This Weeks DO Droplet Summary',
+    `\n--------------------------------------------------------------------\n`,
+    'Stale Droplet\'s\n\n',
+    ...naughtyMessage,
+    `\n--------------------------------------------------------------------\n`,
+    '\n\nDO_NOT_DELETE Droplets\n\n',
+    ...niceMessage,
+    `\n--------------------------------------------------------------------\n`,
+    '\n\nTEAM Droplets\n\n',
+    ...teamMessage,
+    '```',
   ]
+
 
   const blob = new Blob(blobArray, {type: 'text/plain'});
   // const url = URL.createObjectURL(blob);
