@@ -170,28 +170,39 @@ export const doGetDropletUsageTextSummary = async () => {
 
     }
 
-    const type = d.isTeam ? team : nice;
+    if (d.isTeam || d.isNice) {
+      const type = d.isTeam ? team : nice;
 
-    if (!type[d.userName]) {
-      type[d.userName] = {
-        count: 0,
-        running: 0,
-        total: 0
-      };
+      if (!type[d.userName]) {
+        type[d.userName] = {
+          count: 0,
+          running: 0,
+          total: 0
+        };
+      }
+  
+      type[d.userName].count += 1;
+      type[d.userName].running += d.monthlyRate;
+      type[d.userName].total += d.totalCost;
+  
+      return res;
     }
 
-    type[d.userName].count += 1;
-    type[d.userName].running += d.monthlyRate;
-    type[d.userName].total += d.totalCost;
-
     return res;
-  }, { naughty: [], nice: [], team: []});
+  }, { naughty: {}, nice: {}, team: {}});
 
   const naughty = Object.entries(list.naughty)
     .map(([userName, machines]) => `${userName}: ${machines.join(',')} \n`)
 
   const nice = Object.entries(list.nice)
-    .sort(([,aCounts], [, bCounts]) => aCounts.running > bCounts.running ? -1 : aCounts.running < bCounts.running ? 1 : 0)
+    .sort(([, aCounts], [, bCounts]) => {
+      const counts = aCounts.running > bCounts.running ? -1 : aCounts.running < bCounts.running ? 1 : 0;
+      if (counts === 0) {
+        return aCounts.total > bCounts.total ? -1 : aCounts.total < bCounts.total ? 1 : 0;
+      }
+
+      return counts;
+    })
     .map(([userName, counts]) => ({
       userName,
       count: counts.count,
@@ -200,7 +211,14 @@ export const doGetDropletUsageTextSummary = async () => {
     }))
 
   const team = Object.entries(list.team)
-    .sort(([,aCounts], [, bCounts]) => aCounts.running > bCounts.running ? -1 : aCounts.running < bCounts.running ? 1 : 0)
+    .sort(([, aCounts], [, bCounts]) => {
+      const counts = aCounts.running > bCounts.running ? -1 : aCounts.running < bCounts.running ? 1 : 0;
+      if (counts === 0) {
+        return aCounts.total > bCounts.total ? -1 : aCounts.total < bCounts.total ? 1 : 0;
+      }
+
+      return counts;
+    })
     .map(([userName, counts]) => ({
       userName,
       count: counts.count,

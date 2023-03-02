@@ -271,7 +271,7 @@ buttonSlackResults.addEventListener('click', async () => {
     `NONE! A pint of the landlord's finest to you all\n`
   ] : [
     ...naughtyList,
-    '\nPlease make sure to delete or update them',
+    '\nPlease make sure to delete or categorise them',
   ]
 
   const niceTable = new Table;
@@ -311,9 +311,11 @@ buttonSlackResults.addEventListener('click', async () => {
     `\n--------------------------------------------------------------------\n`,
     '\n\nDO_NOT_DELETE Droplets\n\n',
     ...niceMessage,
+    `\nTag your droplets with 'TEAM' to remove them from this list\n`,
     `\n--------------------------------------------------------------------\n`,
     '\n\nTEAM Droplets\n\n',
     ...teamMessage,
+    `\nDroplet details: https://confluence.suse.com/display/CU/DO+Usage\n`,
     '```',
   ]
 
