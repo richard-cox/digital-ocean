@@ -20,9 +20,12 @@ export const doGetDroplets = async(page = 1) => {
   return resJson;
 }
 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 export const doGetSshKeys = async(page = 1) => {
-  const resJson = await getDo(`${doUrl}/api/v1/ssh_keys?page=${page}&sort=created_at&sort_direction=desc&per_page=2000`);
+  const resJson = await getDo(`${doUrl}/api/v1/ssh_keys?page=${page}&sort=created_at&sort_direction=desc&per_page=200`);
   if (resJson.meta.pagination.next_page) {
+    await delay(500);
     const nextPageRes = await doGetSshKeys(++page);
     resJson.ssh_keys = [
       ...resJson.ssh_keys,

@@ -267,11 +267,25 @@ buttonSlackResults.addEventListener('click', async () => {
 
   const { naughty: naughtyList, nice: niceList, team: teamList } = await doGetDropletUsageTextSummary()
 
-  const naughtyMessage = naughtyList.length === 0 ? [
-    `NONE! A pint of the landlord's finest to you all\n`
+  const naughtyTable = new Table;
+  naughtyList.forEach(function(e) {
+    naughtyTable.cell('User', e.userName)
+    naughtyTable.cell('Droplets', e.count)
+    naughtyTable.cell('Monthly Cost (USD)', e.running)
+    naughtyTable.cell('Total Cost (USD)', e.total)
+    naughtyTable.newRow()
+  })
+
+  const naughtyMachines = naughtyList
+    .map(({userName, machines}) => `${userName}: ${machines.join(',')} \n\n`)
+
+  const naughtyMessage = naughtyMachines.length === 0 ? [
+    `NONE! A pint of the landlords finest to you all\n`
   ] : [
-    ...naughtyList,
-    '\nPlease make sure to delete or categorise them',
+    naughtyTable.toString(),
+    `\n\n`,
+    ...naughtyMachines,
+    '\nPlease make sure to delete or categorise them\n',
   ]
 
   const niceTable = new Table;
@@ -304,16 +318,16 @@ buttonSlackResults.addEventListener('click', async () => {
 
   const blobArray = [
     '```',
-    'This Weeks DO Droplet Summary',
-    `\n--------------------------------------------------------------------\n`,
+    'This Weeks DO Droplet Summary\n',
+    `\n--------------------------------------------------------------------\n\n`,
     'Stale Droplet\'s\n\n',
     ...naughtyMessage,
-    `\n--------------------------------------------------------------------\n`,
-    '\n\nDO_NOT_DELETE Droplets\n\n',
+    `\n--------------------------------------------------------------------\n\n`,
+    'DO_NOT_DELETE Droplets\n\n',
     ...niceMessage,
     `\nTag your droplets with 'TEAM' to remove them from this list\n`,
-    `\n--------------------------------------------------------------------\n`,
-    '\n\nTEAM Droplets\n\n',
+    `\n--------------------------------------------------------------------\n\n`,
+    'TEAM Droplets\n\n',
     ...teamMessage,
     `\nDroplet details: https://confluence.suse.com/display/CU/DO+Usage\n`,
     '```',

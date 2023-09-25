@@ -161,10 +161,19 @@ export const doGetDropletUsageTextSummary = async () => {
     const { naughty, nice, team } = res;
     if (d.isNaughty) {
       if (!naughty[d.userName]) {
-        naughty[d.userName] = [];
+        naughty[d.userName] = {
+          count: 0,
+          running: 0,
+          total: 0,
+          machines: [],
+        };
       }
   
-      naughty[d.userName].push(`\`${d.dropletName}\` (${doUrl}/droplets/${d.dropletId})`)
+      naughty[d.userName].machines.push(`\`${d.dropletName}\` (${doUrl}/droplets/${d.dropletId})`)
+
+      naughty[d.userName].count += 1;
+      naughty[d.userName].running += d.monthlyRate;
+      naughty[d.userName].total += d.totalCost;
   
       return res;
 
@@ -192,7 +201,22 @@ export const doGetDropletUsageTextSummary = async () => {
   }, { naughty: {}, nice: {}, team: {}});
 
   const naughty = Object.entries(list.naughty)
-    .map(([userName, machines]) => `${userName}: ${machines.join(',')} \n`)
+    .sort(([, aCounts], [, bCounts]) => {
+      const counts = aCounts.running > bCounts.running ? -1 : aCounts.running < bCounts.running ? 1 : 0;
+      if (counts === 0) {
+        return aCounts.total > bCounts.total ? -1 : aCounts.total < bCounts.total ? 1 : 0;
+      }
+
+      return counts;
+    })
+    .map(([userName, entry]) => ({
+      userName,
+      count: entry.count,
+      running: entry.running.toFixed(2),
+      total: entry.total.toFixed(2),
+      machines: entry.machines
+    }))
+    console.warn(list.naughty)
 
   const nice = Object.entries(list.nice)
     .sort(([, aCounts], [, bCounts]) => {
